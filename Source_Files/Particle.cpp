@@ -64,9 +64,7 @@ void Particle::physicsStep(double delta)
 
 	position += moveDir;
 	speed = glm::length(moveDir);
-	energy_k = 0.5f * mass * pow(speed, 2);
-	energy_p = mass * g * position.y;
-	energy_all = energy_k + energy_p;
+
 
 	positionSave = position;
 	
@@ -74,7 +72,7 @@ void Particle::physicsStep(double delta)
 
 	center = position + vec2(radius, radius);
 
-	if (center.y > 600 - radius) {
+	if (center.y > SCREEN_HEIGHT - radius) {
 		moveDir.y *= -1;
 		moveDir.y *= bouncyness;
 		position.y = 600 - 2 * radius;
@@ -85,7 +83,7 @@ void Particle::physicsStep(double delta)
 		moveDir.x *= bouncyness;
 		position.x = 0 + 2 * radius;
 	}
-	else if (center.x > 800 - radius) {
+	else if (center.x > SCREEN_WIDTH - radius) {
 		moveDir.x *= -1;
 		moveDir.x *= bouncyness;
 		position.x = 800 - 2 * radius;
@@ -119,21 +117,13 @@ void Particle::collision(Particle p)
 		}
 
 		vec2 move1 = moveDir;
-		vec2 move2 = p.moveDir;
 
 		float sv1 = ((move1.y) / (move1.x));
-		float sv2 = ((move2.y) / (move2.x));
 		
 		float xt1 = move1.x * ((sz - sv1) / (sz - st));
 		float xz1 = move1.x * ((st - sv1) / (sz - st));
 		float yt1 = xt1 * st;
 		float yz1 = xz1 * sz;
-
-
-		float xt2 = move2.x * ((sz - sv2) / (sz - st));
-		float xz2 = move2.x * ((st - sv2) / (sz - st));
-		float yt2 = xt2 * st;
-		float yz2 = xz2 * sz;
 
 		vec2 vt1 = vec2(xt1, yt1);
 		vec2 vz1 = vec2(xz1, yz1);
@@ -142,12 +132,9 @@ void Particle::collision(Particle p)
 
 		moveDirSave = nv1;
 
-
 		vec2 mp12 = (mp1 - mp2) / 2.0f;
 
 		positionSave = position + mp12;
-
-
 	}
 }
 
