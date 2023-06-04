@@ -1,2 +1,6 @@
-﻿  main.cpp
+﻿  Particle.cpp
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Particle.cpp(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Particle.cpp(11,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Particle.cpp(49,16): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Particle.cpp(67,25): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
   Physics Engine.vcxproj -> D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\x64\Debug\Physics Engine.exe

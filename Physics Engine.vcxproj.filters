@@ -18,12 +18,27 @@
     <ClCompile Include="Source_Files\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source_Files\PhysicsObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source_Files\Particle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header_Files\defines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header_Files\Triangle.h">
+    <ClInclude Include="Header_Files\Polygon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header_Files\PhysicsObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header_Files\Particle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header_Files\classes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
