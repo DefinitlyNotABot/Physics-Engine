@@ -66,6 +66,7 @@ void Particle::physicsStep(double delta)
 	speed = glm::length(moveDir);
 	energy_k = 0.5f * mass * pow(speed, 2);
 	energy_p = mass * g * position.y;
+	energy_all = energy_k + energy_p;
 
 	positionSave = position;
 	
@@ -103,9 +104,49 @@ void Particle::collision(Particle p)
 	float md = radius + p.radius;
 	if (d <= md)
 	{
+		vec2 mp1 = center;
+		vec2 mp2 = p.center;
 
+		float sz = ((float)(mp2.y - mp1.y) / (float)(mp2.x - mp1.x));
+		if (sz == 0)
+		{
+			sz = std::numeric_limits<float>::min();
+		}
+		float st = (float)-1 / sz;
+		if (st == 0)
+		{
+			st = std::numeric_limits<float>::min();
+		}
 
+		vec2 move1 = moveDir;
+		vec2 move2 = p.moveDir;
+
+		float sv1 = ((move1.y) / (move1.x));
+		float sv2 = ((move2.y) / (move2.x));
 		
+		float xt1 = move1.x * ((sz - sv1) / (sz - st));
+		float xz1 = move1.x * ((st - sv1) / (sz - st));
+		float yt1 = xt1 * st;
+		float yz1 = xz1 * sz;
+
+
+		float xt2 = move2.x * ((sz - sv2) / (sz - st));
+		float xz2 = move2.x * ((st - sv2) / (sz - st));
+		float yt2 = xt2 * st;
+		float yz2 = xz2 * sz;
+
+		vec2 vt1 = vec2(xt1, yt1);
+		vec2 vz1 = vec2(xz1, yz1);
+
+		vec2 nv1 = vt1 + vz1;
+
+		moveDirSave = nv1;
+
+
+		vec2 mp12 = (mp1 - mp2) / 2.0f;
+
+		positionSave = position + mp12;
+
 
 	}
 }

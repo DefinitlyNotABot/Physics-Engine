@@ -17,6 +17,7 @@ public:
 	float angMomentum;
 	float energy_k;
 	float energy_p;
+	float energy_all;
 
 	vec2 force;
 	vec2 moveDir;

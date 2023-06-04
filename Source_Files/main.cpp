@@ -38,14 +38,18 @@ int main()
 
 
 	// Initially fill lists
+	bool full = true;
+	for (int i = 1; i <= 5; i++)
+	{
+		Particle p = Particle(vec2(i*100, 200), 10, white, full, 1, 1);
+		particles.push_back(p);
+		full = !full;
+	}
 
 
-	Particle p1 = Particle(vec2(100, 200), 10, white, false, 1, 1);
-	particles.push_back(p1);
-	Particle p2 = Particle(vec2(400, 200), 10, white, true, 1, 1);
-	particles.push_back(p2);
+	// init text
 
-
+	sf::Text text;
 
 
 
@@ -74,7 +78,7 @@ int main()
 			p.reset();
 			// p.addForce(g_vec);
 			p.addForce(v_vec);
-			p.addForce(vec2(0, -0.1f));
+			//p.addForce(vec2(0, -0.1f));
 			p.physicsStep(deltaTime);
 		}
 		for (auto& p : particles)
@@ -92,7 +96,6 @@ int main()
 			p.collisionUpdatePos();
 		}
 
-		
 
 		deltaCount += deltaTime;
 		if (deltaCount >= 0) {
