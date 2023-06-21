@@ -16,11 +16,12 @@ PhysicsObject::PhysicsObject()
 void PhysicsObject::reset()
 {
 	force = vec2(0, 0);
+	step_calculated = false;
 }
 
-void PhysicsObject::addForce(vec2 dir)
+void PhysicsObject::addForce(vec2* dir)
 {
-	force += dir;
+	force += *dir;
 }
 
 void PhysicsObject::draw(sf::RenderWindow& window)
@@ -28,7 +29,7 @@ void PhysicsObject::draw(sf::RenderWindow& window)
 	std::cout << "Draw not overridden" << std::endl;
 }
 
-void PhysicsObject::physicsStep(double delta)
+void PhysicsObject::physicsStep()
 {
 	std::cout << "PhysicsStep not overridden" << std::endl;
 }

@@ -7,6 +7,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/vector_angle.hpp>
 #include <math.h>
+#include <iostream>
+#include <list>
+#include <chrono>
+#include<windows.h>
 
 // define constants
 
@@ -35,6 +39,10 @@ typedef sf::Vector2f sfVec2;
 typedef sf::Color sfCol;
 
 typedef glm::vec2 vec2;
+
+typedef std::chrono::high_resolution_clock Time;
+typedef std::chrono::milliseconds ms;
+typedef std::chrono::duration<float> fsec;
 
 
 // define classes

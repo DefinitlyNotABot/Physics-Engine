@@ -20,12 +20,14 @@ Particle::Particle(vec2 pos, double rad, sfCol col, bool isHollow, float bouncy,
 
 	ID = nextID;
 	nextID++;
+
+	t0 = Time::now();
 	
 }
 
 void Particle::draw(sf::RenderWindow& window)
 {
-    window.draw(dot);
+	window.draw(dot);
 }
 
 void Particle::createDot()
@@ -44,53 +46,57 @@ void Particle::createDot()
 }
 
 
-void Particle::physicsStep(double delta)
+void Particle::physicsStep()
 {
-	this->delta = delta;
-
-	// Calculate Gravity
-	moveDir += vec2(0, g) * (float)delta;
-	// ~Calculate Gravity
-
-
-	// Calculate Forces
-	float a = glm::length(force);
-
-	if (a > 0)
+	if (!step_calculated)
 	{
-		moveDir += glm::normalize(force) * a * (float)delta;
+		t1 = Time::now();
+		fsec fs = t1 - t0;
+		float delta = fs.count();
+		this->delta = delta;
+
+		// Calculate Gravity
+		moveDir += vec2(0, g) * delta;
+		// ~Calculate Gravity
+
+
+		// Calculate Forces
+		float a = glm::length(force) / mass;
+
+		if (a > 0)
+		{
+			moveDir += glm::normalize(force) * a * delta;
+		}
+
+
+		position += moveDir;
+		speed = glm::length(moveDir);
+
+
+
+
+
+
+		center = position + vec2(radius, radius);
+
+		if (center.y > SCREEN_HEIGHT - radius) {
+			position.y = 600 - 2 * radius;
+			moveDir.y *= -1 * bouncyness;
+		}
+
+		if (center.x < 0 + radius) {
+			moveDir.x *= -1 * bouncyness;
+			position.x = 0 + 2 * radius;
+		}
+		else if (center.x > SCREEN_WIDTH - radius) {
+			moveDir.x *= -1 * bouncyness;
+			position.x = 800 - 2 * radius;
+		}
+		moveDirSave = moveDir;
+		dot.setPosition(position.x, position.y);	// Move Dot to new Position
+		positionSave = position;
+		t0 = Time::now();
 	}
-
-
-	position += moveDir;
-	speed = glm::length(moveDir);
-
-
-	positionSave = position;
-	
-
-
-	center = position + vec2(radius, radius);
-
-	if (center.y > SCREEN_HEIGHT - radius) {
-		moveDir.y *= -1;
-		moveDir.y *= bouncyness;
-		position.y = 600 - 2 * radius;
-	}
-
-	if (center.x < 0 + radius) {
-		moveDir.x *= -1;
-		moveDir.x *= bouncyness;
-		position.x = 0 + 2 * radius;
-	}
-	else if (center.x > SCREEN_WIDTH - radius) {
-		moveDir.x *= -1;
-		moveDir.x *= bouncyness;
-		position.x = 800 - 2 * radius;
-	}
-	moveDirSave = moveDir;
-	dot.setPosition(position.x, position.y);	// Move Dot to new Position
-	
 	
 }
 

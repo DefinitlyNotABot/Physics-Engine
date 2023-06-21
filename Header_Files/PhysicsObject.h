@@ -6,28 +6,31 @@ class PhysicsObject
 public:
 	PhysicsObject();
 
-	void addForce(vec2 dir);
+	void addForce(vec2* dir);
 	void reset();
 
 	virtual void draw(sf::RenderWindow& window);
-	virtual void physicsStep(double delta);
+	virtual void physicsStep();
 
 
-	float rotation;
-	float angMomentum;
-	float energy_k;
-	float energy_p;
-	float energy_all;
+	float rotation = 0;
+	float angMomentum = 0;
+	float energy_k = 0;
+	float energy_p = 0;
+	float energy_all = 0;
+	std::chrono::steady_clock::time_point t0;
+	std::chrono::steady_clock::time_point t1;
 
-	vec2 force;
-	vec2 moveDir;
+	vec2 force = vec2(0,0);
+	vec2 moveDir = vec2(0, 0);
 
-	vec2 moveDirSave;
+	vec2 moveDirSave = vec2(0, 0);
 
 	static int nextID;
-	int ID;
+	int ID = 0;
 
-	float delta;
+	float delta = 0;
 
 	static float gravity;
+	bool step_calculated = false;
 };
