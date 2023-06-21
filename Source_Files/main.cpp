@@ -1,10 +1,14 @@
 #include "../Header_Files/defines.h"
 #include "../Header_Files/classes.h"
 
-#define CHUNK_X 50
-#define CHUNK_Y 50
+#define CHUNK_X 20
+#define CHUNK_Y 20
+#define NUM_THREADS 20
+#define NUM_SUBSTEPS 1
 
+const int numThreads = std::thread::hardware_concurrency();
 
+bool thread_done[NUM_THREADS];
 
 sfCol bgCol = sfCol(0, 0, 0);
 sfCol white = sfCol(255, 255, 255);
@@ -17,6 +21,7 @@ vec2 v_vec = vec2(wind, 0);
 
 vec2* v_vec_ptr = &v_vec;
 
+int c_p_steps = 0;
 
 
 std::list<Particle*> p_chunks[CHUNK_X][CHUNK_Y];
@@ -24,21 +29,29 @@ std::list<Particle*> p_oldChunks[CHUNK_X][CHUNK_Y];
 std::list<Particle*> p_out;
 const int chunk_height = SCREEN_HEIGHT / CHUNK_Y;
 const int chunk_width = SCREEN_WIDTH / CHUNK_X;
+
 //funcs
 
-void physicsSubStep(std::list<Particle>* particles, int x0, int x1, int y0, int y1);
-void physicsSubStep(std::list<Particle>* particles, bool out_of_map);
 void drawScreen(sf::RenderWindow* window, std::list<Particle>* particles);
 void insert_into_chunk(Particle* p);
 void reset_chunks();
 void move_to_chunk(Particle* p, int ox, int oy);
-void multithread_physics(int substeps, std::list<Particle>* particles);
+void multithread_physics(int substeps, std::list<Particle>* particles, int nT);
+
+
+
+
+
+
 
 
 int main()
 {
 
+	std::cout << "Number of Chunks: " << CHUNK_X * CHUNK_Y << std::endl;
 	std::cout << "chunk dims: " << chunk_width << "x" << chunk_height << std::endl;
+	std::cout << "Threads: " << std::thread::hardware_concurrency() << std::endl;
+	std::cout << "Chunks / Thread: " << (CHUNK_X * CHUNK_Y) / std::thread::hardware_concurrency() << std::endl;
 	//PhysicsObject::gravity = g;
 
 	// Initialize Window
@@ -60,7 +73,7 @@ int main()
 	int noSpawned = 0;
 	// Initially fill lists
 	bool full = true;
-	for (int i = 1; i <= 50; i++)
+	for (int i = 1; i <= 5; i++)
 	{
 		Particle p = Particle(vec2(i * 10, 200), 2, white, full, 1, 1);
 		particles.push_back(p);
@@ -107,7 +120,8 @@ int main()
 				window.close();
 		}
 
-		multithread_physics(5, &particles);
+
+		multithread_physics(10, &particles, NUM_THREADS);
 
 		drawScreen(&window, &particles);
 
@@ -123,10 +137,13 @@ int main()
 }
 
 
-
-void physicsSubStep(int x0, int x1, int y0, int y1)
+void physicsSubStepC(int xyid[])
 {
-
+	int x0 = xyid[0];
+	int x1 = xyid[1];
+	int y0 = xyid[2];
+	int y1 = xyid[3];
+	int id = xyid[4];
 	for (int i = x0; i <= x1; i++)
 	{
 		for (int j = y0; j <= y1; j++)
@@ -135,26 +152,30 @@ void physicsSubStep(int x0, int x1, int y0, int y1)
 		}
 	}
 
-	reset_chunks();
 	for (int i = x0; i <= x1; i++)
 	{
 		for (int j = y0; j <= y1; j++)
 		{
 			for (Particle*& p : p_oldChunks[i][j])
 			{
-				
+
 				if (p != nullptr)
 				{
-					std::cout << "heyho" << std::endl;
 					p->reset();
 					p->addForce(v_vec_ptr);
 					p->physicsStep();
-					move_to_chunk(p, i, j);
 				}
-				
+
 			}
 		}
 	}
+
+	thread_done[id] = true;
+	for (int i = 0; i < NUM_THREADS; i++) {
+		while (!thread_done[i]) { ; }
+	}
+
+	while (thread_done[0]) { ; }
 
 	for (int i = x0; i <= x1; i++)
 	{
@@ -164,33 +185,31 @@ void physicsSubStep(int x0, int x1, int y0, int y1)
 			{
 				if (p != nullptr)
 				{
-					for (int k = -1; k <= 1; k++)
+					// Loop over neighboring chunks
+					for (int k = std::max(i - 1, 0); k <= std::min(i + 1, CHUNK_X - 1); k++)
 					{
-						for (int l = -1; l <= 1; l++)
+						for (int l = std::max(j - 1, 0); l <= std::min(j + 1, CHUNK_Y - 1); l++)
 						{
-							if (i + k > 0 && i + k < CHUNK_X && j + l > 0 && j + l < CHUNK_Y)
+							if (k != i || l != j) // Exclude current chunk
 							{
-								for (auto& q : p_chunks[i + k][j + l])
+								for (auto& q : p_chunks[k][l])
 								{
-									if (q != nullptr)
+									if (q != nullptr && p->ID != q->ID)
 									{
-										if (p->ID != q->ID) {
-											p->collision(*q);
-										}
+										p->collision(*q);
 									}
 								}
 							}
 						}
 					}
+
 					if (j == 0)
 					{
 						for (auto& q : p_out)
 						{
-							if (q != nullptr)
+							if (q != nullptr && p->ID != q->ID)
 							{
-								if (p->ID != q->ID) {
-									p->collision(*q);
-								}
+								p->collision(*q);
 							}
 						}
 					}
@@ -199,12 +218,17 @@ void physicsSubStep(int x0, int x1, int y0, int y1)
 		}
 	}
 
+
 }
 
-void physicsSubStep(std::list<Particle>* particles, bool over_screen)
+
+
+
+
+
+
+void physicsSubStepT(std::list<Particle>* particles, int num)
 {
-
-
 	std::list<Particle*> p_oldOut = p_out;
 
 	for (auto& p : p_oldOut)
@@ -217,8 +241,12 @@ void physicsSubStep(std::list<Particle>* particles, bool over_screen)
 			move_to_chunk(p, -1, -1);
 		}
 	}
-
-	for (auto& p : p_oldOut)
+	thread_done[num] = true;
+	for (int i = 0; i < NUM_THREADS; i++) {
+		while (!thread_done[i]) { ; }
+	}
+	while (thread_done[0]) { ; }
+	for (auto& p : p_out)
 	{
 		if (p != nullptr)
 		{
@@ -234,17 +262,17 @@ void physicsSubStep(std::list<Particle>* particles, bool over_screen)
 						}
 					}
 				}
-
-
 			}
-
 		}
-
-
-
 	}
-
 }
+
+
+
+
+
+
+
 
 void drawScreen(sf::RenderWindow* window, std::list<Particle>* particles)
 {
@@ -292,34 +320,87 @@ void reset_chunks()
 		for (int j = 0; j < CHUNK_X; j++)
 		{
 			p_chunks[i][j].clear();
-			p_chunks[i][j].push_back(nullptr);
 		}
 	}
 	p_out.clear();
 	p_out.push_back(nullptr);
 }
 
-void multithread_physics(int substeps, std::list<Particle>* particles)
+void multithread_physics(int substeps, std::list<Particle>* particles, int numThreads)
 {
-	reset_chunks();
-
-	for (auto& p : *particles)
+	std::chrono::steady_clock::time_point t0;
+	std::chrono::steady_clock::time_point t1;
+	t0 = Time::now();
+	for (int i = 0; i < NUM_SUBSTEPS; i++)
 	{
-		insert_into_chunk(&p);
-	}
+		for (int i = 0; i < NUM_THREADS; i++) {
+			thread_done[i] = false;
+		}
 
-	for (int i = 0; i < substeps; i++)
-	{
-		physicsSubStep(0, 49, 0, 49);
-		physicsSubStep(particles, true);
+		
+
+		
+		reset_chunks();
+
+		for (auto& p : *particles)
+		{
+			insert_into_chunk(&p);
+		}
+
+
+
+		std::thread* threads = new std::thread[NUM_THREADS];
+
+		int xot = CHUNK_X / (NUM_THREADS - 1);
+
+		// Create and launch threads
+		for (int i = 0; i < NUM_THREADS - 1; ++i) {
+			int x0 = i * xot;
+			int x1 = (i + 1) * xot - 1;
+			int y0 = 0;
+			int y1 = CHUNK_Y - 1;
+			threads[i] = std::thread(physicsSubStepC, new int[5] {x0, x1, y0, y1, i});
+
+		}
+		threads[numThreads - 1] = std::thread(physicsSubStepT, particles, NUM_THREADS - 1);
+
+
+		for (int i = 0; i < NUM_THREADS; i++) {
+
+			while (!thread_done[i]) { ; }
+		}
+
+
+		reset_chunks();
+		for (int i = 0; i < CHUNK_X; i++)
+		{
+			for (int j = 0; j < CHUNK_Y; j++)
+			{
+				p_chunks[i][j] = p_oldChunks[i][j];
+			}
+		}
+
+
+		thread_done[0] = false;
+
+
+
+
+		// Wait for threads to finish
+		for (int i = 0; i < NUM_THREADS; i++) {
+			threads[i].join();
+		}
+
+
+
+
 		for (auto& p : *particles)
 		{
 			p.collisionUpdatePos();
 		}
+		delete[] threads;
 	}
 
 
-
-
-	
 }
+

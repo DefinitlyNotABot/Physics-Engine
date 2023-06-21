@@ -10,7 +10,8 @@
 #include <iostream>
 #include <list>
 #include <chrono>
-#include<windows.h>
+#include <windows.h>
+#include <thread>
 
 // define constants
 
@@ -48,3 +49,4 @@ typedef std::chrono::duration<float> fsec;
 // define classes
 
 class PhysicsObject;
+class Physics;

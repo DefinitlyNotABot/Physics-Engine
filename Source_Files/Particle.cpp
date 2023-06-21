@@ -50,6 +50,7 @@ void Particle::physicsStep()
 {
 	if (!step_calculated)
 	{
+		step_calculated = true;
 		t1 = Time::now();
 		fsec fs = t1 - t0;
 		float delta = fs.count();
