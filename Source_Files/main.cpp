@@ -1,10 +1,15 @@
 #include "../Header_Files/defines.h"
 #include "../Header_Files/classes.h"
 
+#include <thread>
+#include <iostream>
+#include <chrono>
+#include <list>
+
 #define CHUNK_X 20
 #define CHUNK_Y 20
-#define NUM_THREADS 20
-#define NUM_SUBSTEPS 1
+#define NUM_THREADS 6
+#define NUM_SUBSTEPS 2
 
 const int numThreads = std::thread::hardware_concurrency();
 
@@ -13,15 +18,21 @@ bool thread_done[NUM_THREADS];
 sfCol bgCol = sfCol(0, 0, 0);
 sfCol white = sfCol(255, 255, 255);
 
+int min_physicsSteps = -1;
+int max_physicsSteps = 0;
+int min_c = 0;
+int max_c = 0;
+int c_p_steps = 0;
+int particle_count = 0;
 
-vec2 g_vec = vec2(0, g);
+
 
 float wind = 0.01;
-vec2 v_vec = vec2(wind, 0);
 
+vec2 v_vec = vec2(wind, 0);
+vec2 g_vec = vec2(0, g);
 vec2* v_vec_ptr = &v_vec;
 
-int c_p_steps = 0;
 
 
 std::list<Particle*> p_chunks[CHUNK_X][CHUNK_Y];
@@ -30,16 +41,14 @@ std::list<Particle*> p_out;
 const int chunk_height = SCREEN_HEIGHT / CHUNK_Y;
 const int chunk_width = SCREEN_WIDTH / CHUNK_X;
 
-//funcs
-
 void drawScreen(sf::RenderWindow* window, std::list<Particle>* particles);
 void insert_into_chunk(Particle* p);
 void reset_chunks();
 void move_to_chunk(Particle* p, int ox, int oy);
 void multithread_physics(int substeps, std::list<Particle>* particles, int nT);
-
-
-
+void physicsSubStepC(int xyid[]);
+void physicsSubStepT(std::list<Particle>* particles, int num);
+void writeDebugData();
 
 
 
@@ -47,11 +56,7 @@ void multithread_physics(int substeps, std::list<Particle>* particles, int nT);
 
 int main()
 {
-
-	std::cout << "Number of Chunks: " << CHUNK_X * CHUNK_Y << std::endl;
-	std::cout << "chunk dims: " << chunk_width << "x" << chunk_height << std::endl;
-	std::cout << "Threads: " << std::thread::hardware_concurrency() << std::endl;
-	std::cout << "Chunks / Thread: " << (CHUNK_X * CHUNK_Y) / std::thread::hardware_concurrency() << std::endl;
+	writeDebugData();
 	//PhysicsObject::gravity = g;
 
 	// Initialize Window
@@ -69,16 +74,16 @@ int main()
 
 	std::list<Particle> particles;
 
-	int particleCount = 0;
 	int noSpawned = 0;
 	// Initially fill lists
 	bool full = true;
 	for (int i = 1; i <= 5; i++)
 	{
-		Particle p = Particle(vec2(i * 10, 200), 2, white, full, 1, 1);
+		Particle p = Particle(vec2(i * 10, 200), 4, white, full, 1, 1);
 		particles.push_back(p);
 		full = !full;
-		particleCount++;
+		particle_count++;
+		max_physicsSteps = 0;
 	}
 
 	Particle control = Particle(vec2(5, 200), 1, white, full, 1, 1);
@@ -119,6 +124,13 @@ int main()
 			if (event.type == sf::Event::Closed)
 				window.close();
 		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+		{
+			Particle p = Particle(vec2(100, 100), 4, white, true, 1, 1);
+			particles.push_back(p);
+			particle_count++;
+			writeDebugData();
+		}
 
 
 		multithread_physics(10, &particles, NUM_THREADS);
@@ -131,7 +143,8 @@ int main()
 		avgDelta = (deltaTime + avgDelta) / 2;
 	}
 
-	std::cout << avgDelta << std::endl;
+	std::cout << "min: " << min_physicsSteps << std::endl;
+	std::cout << "max: " << max_physicsSteps << std::endl;
 
 	return 0;
 }
@@ -172,6 +185,7 @@ void physicsSubStepC(int xyid[])
 
 	thread_done[id] = true;
 	for (int i = 0; i < NUM_THREADS; i++) {
+
 		while (!thread_done[i]) { ; }
 	}
 
@@ -183,42 +197,40 @@ void physicsSubStepC(int xyid[])
 		{
 			for (auto& p : p_chunks[i][j])
 			{
-				if (p != nullptr)
+				if (p == nullptr)
 				{
-					// Loop over neighboring chunks
-					for (int k = std::max(i - 1, 0); k <= std::min(i + 1, CHUNK_X - 1); k++)
+					continue;
+				}
+				for (int k = std::max(i - 1, 0); k <= std::min(i + 1, CHUNK_X - 1); k++)
+				{
+					for (int l = std::max(j - 1, 0); l <= std::min(j + 1, CHUNK_Y - 1); l++)
 					{
-						for (int l = std::max(j - 1, 0); l <= std::min(j + 1, CHUNK_Y - 1); l++)
-						{
-							if (k != i || l != j) // Exclude current chunk
-							{
-								for (auto& q : p_chunks[k][l])
-								{
-									if (q != nullptr && p->ID != q->ID)
-									{
-										p->collision(*q);
-									}
-								}
-							}
-						}
-					}
 
-					if (j == 0)
-					{
-						for (auto& q : p_out)
+						for (auto& q : p_chunks[k][l])
 						{
-							if (q != nullptr && p->ID != q->ID)
-							{
-								p->collision(*q);
-							}
+							if (q == nullptr && !p->ID != q->ID)
+							{continue;}
+							p->collision(*q);
+
+						}
+
+					}
+				}
+
+				if (j == 0)
+				{
+					for (auto& q : p_out)
+					{
+						if (q != nullptr && p->ID != q->ID)
+						{
+							p->collision(*q);
 						}
 					}
 				}
+
 			}
 		}
 	}
-
-
 }
 
 
@@ -331,15 +343,16 @@ void multithread_physics(int substeps, std::list<Particle>* particles, int numTh
 	std::chrono::steady_clock::time_point t0;
 	std::chrono::steady_clock::time_point t1;
 	t0 = Time::now();
+
 	for (int i = 0; i < NUM_SUBSTEPS; i++)
 	{
 		for (int i = 0; i < NUM_THREADS; i++) {
 			thread_done[i] = false;
 		}
 
-		
 
-		
+
+
 		reset_chunks();
 
 		for (auto& p : *particles)
@@ -355,6 +368,7 @@ void multithread_physics(int substeps, std::list<Particle>* particles, int numTh
 
 		// Create and launch threads
 		for (int i = 0; i < NUM_THREADS - 1; ++i) {
+			//std::cout << "Waiting for thread " << i << " to be started" << std::endl;
 			int x0 = i * xot;
 			int x1 = (i + 1) * xot - 1;
 			int y0 = 0;
@@ -366,7 +380,7 @@ void multithread_physics(int substeps, std::list<Particle>* particles, int numTh
 
 
 		for (int i = 0; i < NUM_THREADS; i++) {
-
+			//std::cout << "Waiting for thread " << i << " to finnish" << std::endl;
 			while (!thread_done[i]) { ; }
 		}
 
@@ -388,6 +402,7 @@ void multithread_physics(int substeps, std::list<Particle>* particles, int numTh
 
 		// Wait for threads to finish
 		for (int i = 0; i < NUM_THREADS; i++) {
+			//std::cout << "Waiting for thread " << i << " to join" << std::endl;
 			threads[i].join();
 		}
 
@@ -401,6 +416,48 @@ void multithread_physics(int substeps, std::list<Particle>* particles, int numTh
 		delete[] threads;
 	}
 
+	t1 = Time::now();
+	fsec fs = t1 - t0;
+	int steptime = (int)(1 / fs.count());
+	min_c++;
+	max_c++;
+
+
+	if (steptime < min_physicsSteps || min_physicsSteps == -1)
+	{
+		min_physicsSteps = steptime;
+		writeDebugData();
+		min_c = 0;
+	}
+	else if (steptime > max_physicsSteps)
+	{
+		max_physicsSteps = steptime;
+		writeDebugData();
+		max_c = 0;
+	}
+
+	if (min_c > 1000) {
+		min_physicsSteps = steptime;
+		writeDebugData();
+		min_c = 0;
+	}
+	if (max_c > 1000)
+	{
+		max_physicsSteps = steptime;
+		writeDebugData();
+		max_c = 0;
+	}
 
 }
 
+void writeDebugData()
+{
+	system("cls");
+	std::cout << "Number of Chunks: " << CHUNK_X * CHUNK_Y << std::endl;
+	std::cout << "chunk dims: " << chunk_width << "x" << chunk_height << std::endl;
+	std::cout << "Running on " << NUM_THREADS << " Threads " << std::endl;
+	std::cout << "Chunks / Thread: " << (CHUNK_X * CHUNK_Y) / std::thread::hardware_concurrency() << std::endl;
+	std::cout << "\nmin: " << min_physicsSteps << std::endl;
+	std::cout << "max: " << max_physicsSteps << std::endl;
+	std::cout << "Particles: " << particle_count << std::endl;
+}

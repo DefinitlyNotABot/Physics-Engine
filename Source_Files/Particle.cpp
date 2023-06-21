@@ -50,97 +50,87 @@ void Particle::physicsStep()
 {
 	if (!step_calculated)
 	{
-		step_calculated = true;
 		t1 = Time::now();
 		fsec fs = t1 - t0;
 		float delta = fs.count();
 		this->delta = delta;
 
 		// Calculate Gravity
-		moveDir += vec2(0, g) * delta;
+		moveDir.y += g * delta;
 		// ~Calculate Gravity
 
-
 		// Calculate Forces
-		float a = glm::length(force) / mass;
-
-		if (a > 0)
+		float forceLength = glm::length(force);
+		if (forceLength > 0)
 		{
+			float a = forceLength / mass;
 			moveDir += glm::normalize(force) * a * delta;
 		}
-
 
 		position += moveDir;
 		speed = glm::length(moveDir);
 
-
-
-
-
-
 		center = position + vec2(radius, radius);
 
-		if (center.y > SCREEN_HEIGHT - radius) {
-			position.y = 600 - 2 * radius;
-			moveDir.y *= -1 * bouncyness;
+		if (center.y > SCREEN_HEIGHT - radius)
+		{
+			position.y = SCREEN_HEIGHT - 2 * radius;
+			moveDir.y *= -bouncyness;
 		}
 
-		if (center.x < 0 + radius) {
-			moveDir.x *= -1 * bouncyness;
-			position.x = 0 + 2 * radius;
+		if (center.x < radius)
+		{
+			moveDir.x *= -bouncyness;
+			position.x = 2 * radius;
 		}
-		else if (center.x > SCREEN_WIDTH - radius) {
-			moveDir.x *= -1 * bouncyness;
-			position.x = 800 - 2 * radius;
+		else if (center.x > SCREEN_WIDTH - radius)
+		{
+			moveDir.x *= -bouncyness;
+			position.x = SCREEN_WIDTH - 2 * radius;
 		}
+
 		moveDirSave = moveDir;
-		dot.setPosition(position.x, position.y);	// Move Dot to new Position
+		dot.setPosition(position.x, position.y); // Move Dot to new Position
 		positionSave = position;
 		t0 = Time::now();
 	}
 	
 }
 
-void Particle::collision(Particle p)
+void Particle::collision(const Particle& p)
 {
-	//std::cout << "me " << center.x << std::endl;
+	float dx = p.center.x - center.x;
+	float dy = p.center.y - center.y;
+	float radiusSum = radius + p.radius;
+	float radiusSumSq = radiusSum * radiusSum;
 
-	float d = glm::length(center - p.center);
-	float md = radius + p.radius;
-	if (d <= md)
+	float distanceSq = dx * dx + dy * dy;
+
+	if (distanceSq <= radiusSumSq)
 	{
 		vec2 mp1 = center;
 		vec2 mp2 = p.center;
 
-		float sz = ((float)(mp2.y - mp1.y) / (float)(mp2.x - mp1.x));
-		if (sz == 0)
-		{
-			sz = std::numeric_limits<float>::min();
-		}
-		float st = (float)-1 / sz;
-		if (st == 0)
-		{
-			st = std::numeric_limits<float>::min();
-		}
-
 		vec2 move1 = moveDir;
+		float dx = mp2.x - mp1.x;
+		float dy = mp2.y - mp1.y;
+		float radiusSum = radius + p.radius;
 
-		float sv1 = ((move1.y) / (move1.x));
-		
-		float xt1 = move1.x * ((sz - sv1) / (sz - st));
-		float xz1 = move1.x * ((st - sv1) / (sz - st));
-		float yt1 = xt1 * st;
-		float yz1 = xz1 * sz;
+		float invMag = 1.0f / sqrt(dx * dx + dy * dy);
+		float nx = dx * invMag;
+		float ny = dy * invMag;
 
-		vec2 vt1 = vec2(xt1, yt1);
-		vec2 vz1 = vec2(xz1, yz1);
+		float dotProduct = move1.x * nx + move1.y * ny;
+		float px = nx * dotProduct;
+		float py = ny * dotProduct;
 
-		vec2 nv1 = vt1 + vz1;
+		vec2 vt1 = vec2(px, py);
+		vec2 vz1 = move1 - vt1;
+		vec2 nv1 = vt1 - vz1;
 
 		moveDirSave = nv1;
 
-		vec2 mp12 = (mp1 - mp2) / 2.0f;
-
+		vec2 mp12 = (mp1 - mp2) * 0.5f;
 		positionSave = position + mp12;
 	}
 }

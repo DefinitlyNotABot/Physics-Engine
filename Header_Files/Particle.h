@@ -10,7 +10,7 @@ public:
 	void draw(sf::RenderWindow& window) override;
 	void physicsStep() override;
 
-	void collision(Particle p);
+	void collision(const Particle& p);
 	void collisionUpdatePos();
 
 
