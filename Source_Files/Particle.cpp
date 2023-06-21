@@ -99,39 +99,32 @@ void Particle::physicsStep()
 
 void Particle::collision(const Particle& p)
 {
-	float dx = p.center.x - center.x;
-	float dy = p.center.y - center.y;
+	// Calculate the distance between the centers of the two particles
+	vec2 delta = p.center - center;
+	float distanceSq = glm::dot(delta, delta);
+
+	// Check if the particles are colliding
 	float radiusSum = radius + p.radius;
 	float radiusSumSq = radiusSum * radiusSum;
-
-	float distanceSq = dx * dx + dy * dy;
-
 	if (distanceSq <= radiusSumSq)
 	{
-		vec2 mp1 = center;
-		vec2 mp2 = p.center;
+		// Calculate the collision normal and unit vector
+		vec2 collisionNormal = normalize(delta);
 
-		vec2 move1 = moveDir;
-		float dx = mp2.x - mp1.x;
-		float dy = mp2.y - mp1.y;
-		float radiusSum = radius + p.radius;
+		// Calculate the relative velocity
+		vec2 relativeVelocity = p.moveDir - moveDir;
 
-		float invMag = 1.0f / sqrt(dx * dx + dy * dy);
-		float nx = dx * invMag;
-		float ny = dy * invMag;
+		// Calculate the impulse scalar
+		float impulseScalar = glm::dot(relativeVelocity, collisionNormal) * (1 + bouncyness) / (1 / mass + 1 / p.mass);
 
-		float dotProduct = move1.x * nx + move1.y * ny;
-		float px = nx * dotProduct;
-		float py = ny * dotProduct;
+		// Apply impulses to update the velocities
+		moveDirSave += impulseScalar * collisionNormal / mass;
+		
 
-		vec2 vt1 = vec2(px, py);
-		vec2 vz1 = move1 - vt1;
-		vec2 nv1 = vt1 - vz1;
-
-		moveDirSave = nv1;
-
-		vec2 mp12 = (mp1 - mp2) * 0.5f;
-		positionSave = position + mp12;
+		// Separate the particles to avoid overlap
+		vec2 separation = collisionNormal * (radiusSum - sqrt(distanceSq)) * 0.5f;
+		positionSave -= separation;
+		
 	}
 }
 

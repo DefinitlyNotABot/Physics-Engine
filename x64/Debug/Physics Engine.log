@@ -1,17 +1,17 @@
 ﻿  main.cpp
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(28,12): warning C4305: 'initializing': truncation from 'double' to 'float'
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(91,19): warning C4244: 'initializing': conversion from 'float' to 'uint64', possible loss of data
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(116,29): warning C4244: '=': conversion from '_Rep' to 'uint64', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(32,12): warning C4305: 'initializing': truncation from 'double' to 'float'
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(97,19): warning C4244: 'initializing': conversion from 'float' to 'uint64', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(122,29): warning C4244: '=': conversion from '_Rep' to 'uint64', possible loss of data
           with
           [
               _Rep=float
           ]
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(304,8): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(344,8): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(305,8): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(345,8): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float

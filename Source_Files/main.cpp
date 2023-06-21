@@ -24,10 +24,14 @@ int min_c = 0;
 int max_c = 0;
 int c_p_steps = 0;
 int particle_count = 0;
+int spawn_x = 10;
+int previous_fatal_error = 0;
 
 
 
 float wind = 0.01;
+
+double fatal_error_threashold = 0.25;
 
 vec2 v_vec = vec2(wind, 0);
 vec2 g_vec = vec2(0, g);
@@ -79,7 +83,7 @@ int main()
 	bool full = true;
 	for (int i = 1; i <= 5; i++)
 	{
-		Particle p = Particle(vec2(i * 10, 200), 4, white, full, 1, 1);
+		Particle p = Particle(vec2(i * 10, 200), 2, white, full, 1, 1);
 		particles.push_back(p);
 		full = !full;
 		particle_count++;
@@ -124,11 +128,13 @@ int main()
 			if (event.type == sf::Event::Closed)
 				window.close();
 		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) || max_physicsSteps > 100)
 		{
-			Particle p = Particle(vec2(100, 100), 4, white, true, 1, 1);
+			Particle p = Particle(vec2(spawn_x, 100), 2, white, true, 1, 1);
 			particles.push_back(p);
 			particle_count++;
+			spawn_x += 10;
+			spawn_x = spawn_x % SCREEN_WIDTH + 10;
 			writeDebugData();
 		}
 
@@ -182,11 +188,27 @@ void physicsSubStepC(int xyid[])
 			}
 		}
 	}
+	std::chrono::steady_clock::time_point t00;
+	std::chrono::steady_clock::time_point t01;
+	t00 = Time::now();
 
 	thread_done[id] = true;
 	for (int i = 0; i < NUM_THREADS; i++) {
 
-		while (!thread_done[i]) { ; }
+		while (!thread_done[i]) {
+			t01 = Time::now();
+			fsec fs = t01 - t00;
+			double steptime = fs.count();
+			//std::cout << "waiting for thread " << steptime << std::endl;
+			if (steptime > fatal_error_threashold)
+			{
+				std::cout << "Thread " << id << " waiting for thread " << i << std::endl;
+				i += 1;
+				previous_fatal_error++;
+				writeDebugData();
+			}
+		
+		}
 	}
 
 	while (thread_done[0]) { ; }
@@ -197,40 +219,40 @@ void physicsSubStepC(int xyid[])
 		{
 			for (auto& p : p_chunks[i][j])
 			{
-				if (p == nullptr)
+				if (p != nullptr)
 				{
-					continue;
-				}
-				for (int k = std::max(i - 1, 0); k <= std::min(i + 1, CHUNK_X - 1); k++)
-				{
-					for (int l = std::max(j - 1, 0); l <= std::min(j + 1, CHUNK_Y - 1); l++)
+					for (int k = std::max(i - 1, 0); k <= std::min(i + 1, CHUNK_X - 1); k++)
 					{
-
-						for (auto& q : p_chunks[k][l])
+						for (int l = std::max(j - 1, 0); l <= std::min(j + 1, CHUNK_Y - 1); l++)
 						{
-							if (q == nullptr && !p->ID != q->ID)
-							{continue;}
-							p->collision(*q);
+
+							for (auto& q : p_chunks[k][l])
+							{
+								if (q != nullptr && p->ID != q->ID)
+								{
+									p->collision(*q);
+								}
+							}
 
 						}
-
 					}
-				}
 
-				if (j == 0)
-				{
-					for (auto& q : p_out)
+					if (j == 0)
 					{
-						if (q != nullptr && p->ID != q->ID)
+						for (auto& q : p_out)
 						{
-							p->collision(*q);
+							if (q != nullptr && p->ID != q->ID)
+							{
+								p->collision(*q);
+							}
 						}
 					}
 				}
-
 			}
 		}
 	}
+
+
 }
 
 
@@ -254,8 +276,25 @@ void physicsSubStepT(std::list<Particle>* particles, int num)
 		}
 	}
 	thread_done[num] = true;
+	std::chrono::steady_clock::time_point t00;
+	std::chrono::steady_clock::time_point t01;
+	t00 = Time::now();
 	for (int i = 0; i < NUM_THREADS; i++) {
-		while (!thread_done[i]) { ; }
+		while (!thread_done[i]) 
+		{
+			t01 = Time::now();
+			fsec fs = t01 - t00;
+			double steptime = fs.count();
+			//std::cout << "waiting for thread " << steptime << std::endl;
+			if (steptime > fatal_error_threashold)
+			{
+				std::cout << "Thread out waiting for thread " << i << std::endl;
+				i += 1;
+				previous_fatal_error++;
+				writeDebugData();
+			}
+		
+		}
 	}
 	while (thread_done[0]) { ; }
 	for (auto& p : p_out)
@@ -378,10 +417,22 @@ void multithread_physics(int substeps, std::list<Particle>* particles, int numTh
 		}
 		threads[numThreads - 1] = std::thread(physicsSubStepT, particles, NUM_THREADS - 1);
 
-
+		std::chrono::steady_clock::time_point t00;
+		std::chrono::steady_clock::time_point t01;
+		t00 = Time::now();
 		for (int i = 0; i < NUM_THREADS; i++) {
 			//std::cout << "Waiting for thread " << i << " to finnish" << std::endl;
-			while (!thread_done[i]) { ; }
+			while (!thread_done[i]) 
+			{ 
+				t01 = Time::now();
+				fsec fs = t01 - t00;
+				double steptime = fs.count();
+				//std::cout << "waiting for thread " << steptime << std::endl;
+				if (steptime > 1)
+				{
+					std::cout << "waiting for thread " << i << std::endl;
+				}
+			}
 		}
 
 
@@ -390,7 +441,9 @@ void multithread_physics(int substeps, std::list<Particle>* particles, int numTh
 		{
 			for (int j = 0; j < CHUNK_Y; j++)
 			{
+
 				p_chunks[i][j] = p_oldChunks[i][j];
+
 			}
 		}
 
@@ -399,10 +452,18 @@ void multithread_physics(int substeps, std::list<Particle>* particles, int numTh
 
 
 
-
+		t00 = Time::now();
 		// Wait for threads to finish
 		for (int i = 0; i < NUM_THREADS; i++) {
 			//std::cout << "Waiting for thread " << i << " to join" << std::endl;
+			t01 = Time::now();
+			fsec fs = t01 - t00;
+			double steptime = fs.count();
+			//std::cout << "waiting for thread " << steptime << std::endl;
+			if (steptime > 1)
+			{
+				std::cout << "waiting for thread to join " << i << std::endl;
+			}
 			threads[i].join();
 		}
 
@@ -456,8 +517,9 @@ void writeDebugData()
 	std::cout << "Number of Chunks: " << CHUNK_X * CHUNK_Y << std::endl;
 	std::cout << "chunk dims: " << chunk_width << "x" << chunk_height << std::endl;
 	std::cout << "Running on " << NUM_THREADS << " Threads " << std::endl;
-	std::cout << "Chunks / Thread: " << (CHUNK_X * CHUNK_Y) / std::thread::hardware_concurrency() << std::endl;
+	std::cout << "Chunks / Thread: " << (CHUNK_X * CHUNK_Y) / (NUM_THREADS-1) << std::endl;
 	std::cout << "\nmin: " << min_physicsSteps << std::endl;
 	std::cout << "max: " << max_physicsSteps << std::endl;
 	std::cout << "Particles: " << particle_count << std::endl;
+	std::cout << "Fatal errors avoided: " << previous_fatal_error << std::endl;
 }
