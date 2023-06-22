@@ -31,7 +31,7 @@ int particle_count = 0;
 int triangle_count = 0;
 
 
-float wind = 0.3;
+float wind = 0.2;
 
 double fatal_error_threashold = 0.25;
 
@@ -97,7 +97,7 @@ int main()
 		
 		max_physicsSteps = 0;
 	}
-	for (int i = 1; i <= 3; i++)
+	for (int i = 1; i <= 1; i++)
 	{
 		createTriangle(&triangles, vec2(i*100+100, 100), new vec2[3]{ vec2(-50, 0) ,vec2(50, 0) ,vec2(0, 75) }, white, true, 0.9, 1);
 

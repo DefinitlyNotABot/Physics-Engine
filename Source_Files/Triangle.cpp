@@ -115,23 +115,54 @@ void Triangle::physicsStep()
 				float contactAngle = atan2(contactVector.y, contactVector.x);
 
 				// Update the angular momentum
-				angMomentum = bouncyness * contactAngle * ANG_MOMENTUM_MULTIPLY * angMomentum*10 + moveDir.y/2000 * contactAngle;
+				angMomentum = bouncyness * contactAngle * ANG_MOMENTUM_MULTIPLY * angMomentum*10 + glm::length(moveDir)/2000 * contactAngle;
 
-				if (points[i].x > position.x && angMomentum > 0)
+				vec2 cV1 = vec2(1, 0) - moveDir;
+				float cA1 = atan2(cV1.y, cV1.x);
+
+				vec2 cV2 = vec2(1, 0) - vec2(0,1);
+				float cA2 = atan2(cV2.y, cV2.x);
+
+
+				if (cA1 > cA2)
 				{
-					angMomentum *= -1;
+					if(points[i].x > position.x && angMomentum > 0)
+					{
+						std::cout << "now1!" << std::endl;
+						angMomentum *= -1;
+					}
+					if (points[i].x < position.x && angMomentum < 0)
+					{
+						std::cout << "now2!" << std::endl;
+						angMomentum *= -1;
+					}
 				}
-				if (points[i].x < position.x && angMomentum < 0)
+				if (cA1 < cA2)
 				{
-					angMomentum *= -1;
+					if (points[i].x > position.x && angMomentum > 0)
+					{
+						std::cout << "now3!" << std::endl;
+						angMomentum *= -1;
+					}
+					if (points[i].x < position.x && angMomentum < 0)
+					{
+						std::cout << "now4!" << std::endl;
+						angMomentum *= -1;
+					}
 				}
 
 
-				std::cout << angMomentum << std::endl;
-				std::cout << contactAngle << std::endl << std::endl;
 
 				position.y -= points[i].y - SCREEN_HEIGHT;
 				moveDir.y *= -bouncyness;
+
+				vec2 contactVector2 = vec2(1,0) - moveDir;
+				float contactAngle2 = atan2(contactVector.y, contactVector.x);
+
+
+				std::cout << contactAngle2 << std::endl << std::endl;
+
+				moveDir = rotate_vector(moveDir, contactAngle - contactAngle2);
 
 
 				updateTriangle();
@@ -143,7 +174,7 @@ void Triangle::physicsStep()
 				float contactAngle = atan2(contactVector.y, contactVector.x);
 
 				// Update the angular momentum
-				angMomentum = bouncyness * contactAngle * ANG_MOMENTUM_MULTIPLY * angMomentum * 10 + moveDir.x / 2000 * contactAngle;
+				angMomentum = bouncyness * contactAngle * ANG_MOMENTUM_MULTIPLY * angMomentum * 10 + glm::length(moveDir) / 2000 * contactAngle;
 
 				if (points[i].y > position.y && angMomentum > 0)
 				{
@@ -153,11 +184,6 @@ void Triangle::physicsStep()
 				{
 					angMomentum *= -1;
 				}
-
-
-				std::cout << angMomentum << std::endl;
-				std::cout << contactAngle << std::endl << std::endl;
-
 
 
 
@@ -172,7 +198,7 @@ void Triangle::physicsStep()
 				float contactAngle = atan2(contactVector.y, contactVector.x);
 
 				// Update the angular momentum
-				angMomentum = bouncyness * contactAngle * ANG_MOMENTUM_MULTIPLY * angMomentum * 10 + moveDir.x / 2000 * contactAngle;
+				angMomentum = bouncyness * contactAngle * ANG_MOMENTUM_MULTIPLY * angMomentum * 10 + glm::length(moveDir) / 2000 * contactAngle;
 
 				if (points[i].y > position.y && angMomentum < 0)
 				{
@@ -182,10 +208,6 @@ void Triangle::physicsStep()
 				{
 					angMomentum *= -1;
 				}
-
-
-				std::cout << angMomentum << std::endl;
-				std::cout << contactAngle << std::endl << std::endl;
 				position.x -= points[i].x - SCREEN_WIDTH;
 				moveDir.x *= -bouncyness;
 				updateTriangle();
