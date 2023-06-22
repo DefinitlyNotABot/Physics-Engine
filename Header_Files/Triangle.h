@@ -13,6 +13,7 @@ public:
 	void collision(const Triangle& p);
 	void collisionUpdatePos();
 	void createTriangle();
+	void updateTriangle();
 
 
 	float speed = 0.0f;
@@ -27,6 +28,7 @@ public:
 	sfCol color;
 	bool hollow;
 
+	vec2 relativePoints[3];
 	vec2 points[3];
 
 	sf::VertexArray triangle;

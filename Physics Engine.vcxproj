@@ -141,6 +141,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header_Files\classes.h" />
+    <ClInclude Include="Header_Files\custom_functions.h" />
     <ClInclude Include="Header_Files\defines.h" />
     <ClInclude Include="Header_Files\Particle.h" />
     <ClInclude Include="Header_Files\PhysicsObject.h" />

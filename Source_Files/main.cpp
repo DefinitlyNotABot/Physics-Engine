@@ -31,7 +31,7 @@ int particle_count = 0;
 int triangle_count = 0;
 
 
-float wind = 0.00;
+float wind = 0.01;
 
 double fatal_error_threashold = 0.25;
 
@@ -66,9 +66,10 @@ int main()
 {
 	writeDebugData();
 	//PhysicsObject::gravity = g;
-
+	sf::ContextSettings settings;
+	settings.antialiasingLevel = 8;
 	// Initialize Window
-	sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Physics Engine", sf::Style::Titlebar | sf::Style::Close);
+	sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Physics Engine", sf::Style::Titlebar | sf::Style::Close, settings);
 
 	if (!window.isOpen()) {
 		std::cout << "Window not created" << std::endl;
@@ -96,24 +97,25 @@ int main()
 		
 		max_physicsSteps = 0;
 	}
+	for (int i = 1; i <= 1; i++)
+	{
+		createTriangle(&triangles, vec2(i*100+100, 100), new vec2[3]{ vec2(-50, 0) ,vec2(50, 0) ,vec2(0, 75) }, white, true, 0.9, 1);
 
-	Particle control = Particle(vec2(5, 200), 1, white, full, 1, 1);
+		max_physicsSteps = 0;
+	}
+
 
 	// Variables for time calculation
 	auto startTime = std::chrono::high_resolution_clock::now();
-	uint64 deltaTime = 0.0f;
-
-	float avgDelta = 0.0f;
 
 
 	// setup chuncks for faster calculation
 
 	int x_spawn = 50;
 
-	uint64* deltaTime_ptr = &deltaTime;
 
 
-	createTriangle(&triangles, vec2(100, 100), new vec2[3]{ vec2(-50, 0) ,vec2(50, 0) ,vec2(0, 75) }, white, true, 0.9, 1);
+	
 
 	while (window.isOpen())
 	{
@@ -126,7 +128,6 @@ int main()
 
 
 		// Convert the duration to seconds
-		deltaTime = duration.count();
 		startTime = std::chrono::high_resolution_clock::now();
 
 		sf::Event event;
@@ -146,16 +147,19 @@ int main()
 
 		multithread_physics(10, &particles);
 
+		for (auto& p : triangles)
+		{
+			p.reset();
+			p.addForce(v_vec_ptr);
+			p.physicsStep();
+
+		}
+
+		
+
 		drawScreen(&window, &particles, &triangles);
 
-
-
-
-		avgDelta = (deltaTime + avgDelta) / 2;
 	}
-
-	std::cout << "min: " << min_physicsSteps << std::endl;
-	std::cout << "max: " << max_physicsSteps << std::endl;
 
 	return 0;
 }
@@ -396,9 +400,7 @@ void multithread_physics(int substeps, std::list<Particle>* particles)
 		for (int i = 0; i < NUM_THREADS; i++) {
 			thread_done[i] = false;
 		}
-
-
-
+		
 
 		reset_chunks();
 

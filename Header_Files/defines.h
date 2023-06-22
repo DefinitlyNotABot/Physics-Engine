@@ -18,7 +18,7 @@
 
 # define PI	3.14159265358979323846  // Pi
 # define g	0.1f	// Gravity
-# define airResistance 0.95f	// Air resistance, multiplied on movement vec
+# define AIR_RESSISTANCE 0.95f	// Air resistance, multiplied on movement vec
 
 # define SCREEN_WIDTH 800
 # define SCREEN_HEIGHT 600
@@ -52,3 +52,7 @@ typedef std::chrono::duration<float> fsec;
 class PhysicsObject;
 class Physics;
 
+// define functions
+
+sf::Vector2f vec2_2_sfVec2(glm::vec2* x);
+vec2 rotate_vector(vec2 v, float ang);
