@@ -29,7 +29,7 @@ Triangle::Triangle(vec2 pos, vec2 pts[3], sfCol col, bool isHollow, float bouncy
 	nextID++;
 
 	t0 = Time::now();
-	
+	step_calculated = false;
 }
 
 void Triangle::draw(sf::RenderWindow* window)

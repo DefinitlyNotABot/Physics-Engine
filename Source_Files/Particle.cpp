@@ -22,7 +22,7 @@ Particle::Particle(vec2 pos, double rad, sfCol col, bool isHollow, float bouncy,
 	nextID++;
 
 	t0 = Time::now();
-	
+	step_calculated = false;
 }
 
 void Particle::draw(sf::RenderWindow* window)
@@ -50,6 +50,7 @@ void Particle::physicsStep()
 {
 	if (!step_calculated)
 	{
+		
 		t1 = Time::now();
 		fsec fs = t1 - t0;
 		float delta = fs.count();

@@ -31,7 +31,7 @@ int particle_count = 0;
 int triangle_count = 0;
 
 
-float wind = 0.2;
+float wind = 0.0;
 
 double fatal_error_threashold = 0.25;
 
@@ -55,6 +55,8 @@ void multithread_physics(int substeps, std::list<Particle>* particles, std::list
 void physicsSubStepC(int xyid[]);
 void physicsSubStepT(std::list<Particle>* particles, int num);
 void writeDebugData();
+void createParticle(std::list<Particle>* list, vec2 p, int r, sfCol c, bool f, double b, double m, vec2 init);
+void createTriangle(std::list<Triangle>* list, vec2 p, vec2 pt[3], sfCol c, bool h, float b, float m, vec2 init);
 void createParticle(std::list<Particle>* list, vec2 p, int r, sfCol c, bool f, double b, double m);
 void createTriangle(std::list<Triangle>* list, vec2 p, vec2 pt[3], sfCol c, bool h, float b, float m);
 
@@ -90,16 +92,16 @@ int main()
 	bool full = true;
 
 
-	for (int i = 1; i <= 5; i++)
+	for (int i = 1; i <= 25; i++)
 	{
-		//createParticle(&particles, vec2(i * 10, 200), 2, white, full, 0.5, 1);
+		createParticle(&particles, vec2(i * 20, 200), 5, white, full, 0.9, i, vec2(10*i*i, -100+i));
 		full = !full;
-		
+
 		max_physicsSteps = 0;
 	}
-	for (int i = 1; i <= 1; i++)
+	for (int i = 1; i <= 0; i++)
 	{
-		createTriangle(&triangles, vec2(i*100+100, 100), new vec2[3]{ vec2(-50, 0) ,vec2(50, 0) ,vec2(0, 75) }, white, true, 0.9, 1);
+		createTriangle(&triangles, vec2(i * 100 + 100, 100), new vec2[3]{ vec2(-50, 0) ,vec2(50, 0) ,vec2(0, 75) }, white, true, 0.9, 1, vec2(1, 1));
 
 		max_physicsSteps = 0;
 	}
@@ -115,20 +117,11 @@ int main()
 
 
 
-	
+
 
 	while (window.isOpen())
 	{
-		auto currentTime = std::chrono::high_resolution_clock::now();
-		std::chrono::duration<float> duration = currentTime - startTime;
 
-
-
-
-
-
-		// Convert the duration to seconds
-		startTime = std::chrono::high_resolution_clock::now();
 
 		sf::Event event;
 		while (window.pollEvent(event))
@@ -136,20 +129,11 @@ int main()
 			if (event.type == sf::Event::Closed)
 				window.close();
 		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) || max_physicsSteps > 100)
-		{
-			//createParticle(&particles, vec2(spawn_x, 100), 2, white, true, 0.5, max_physicsSteps % 6 + 1);
-			spawn_x += 11;
-			spawn_x = spawn_x % SCREEN_WIDTH;
-			writeDebugData();
-		}
+
 
 
 		multithread_physics(10, &particles, &triangles);
 
-		
-
-		
 
 		drawScreen(&window, &particles, &triangles);
 
@@ -183,9 +167,10 @@ void physicsSubStepC(int xyid[])
 
 				if (p != nullptr)
 				{
-					p->reset();
+					
 					p->addForce(v_vec_ptr);
 					p->physicsStep();
+					p->reset();
 				}
 
 			}
@@ -210,7 +195,7 @@ void physicsSubStepC(int xyid[])
 				previous_fatal_error++;
 				writeDebugData();
 			}
-		
+
 		}
 	}
 
@@ -272,9 +257,11 @@ void physicsSubStepT(std::list<Particle>* particles, int num)
 	{
 		if (p != nullptr)
 		{
-			p->reset();
+
 			p->addForce(v_vec_ptr);
 			p->physicsStep();
+			p->reset();
+
 			move_to_chunk(p, -1, -1);
 		}
 	}
@@ -283,7 +270,7 @@ void physicsSubStepT(std::list<Particle>* particles, int num)
 	std::chrono::steady_clock::time_point t01;
 	t00 = Time::now();
 	for (int i = 0; i < NUM_THREADS; i++) {
-		while (!thread_done[i]) 
+		while (!thread_done[i])
 		{
 			t01 = Time::now();
 			fsec fs = t01 - t00;
@@ -296,7 +283,7 @@ void physicsSubStepT(std::list<Particle>* particles, int num)
 				previous_fatal_error++;
 				writeDebugData();
 			}
-		
+
 		}
 	}
 	while (thread_done[0]) { ; }
@@ -392,23 +379,20 @@ void multithread_physics(int substeps, std::list<Particle>* particles, std::list
 	for (int i = 0; i < NUM_SUBSTEPS; i++)
 	{
 
-		for (auto& p : *triangles)
-		{
-			p.reset();
-			p.addForce(v_vec_ptr);
-			p.physicsStep();
+		//for (auto& t : *triangles)
+		//{
 
-		}
-
-
-
+		//	t.addForce(v_vec_ptr);
+		//	t.physicsStep();
+		//	t.reset();
+		//}
 
 
 
 		for (int i = 0; i < NUM_THREADS; i++) {
 			thread_done[i] = false;
 		}
-		
+
 
 		reset_chunks();
 
@@ -440,8 +424,8 @@ void multithread_physics(int substeps, std::list<Particle>* particles, std::list
 		t00 = Time::now();
 		for (int i = 0; i < NUM_THREADS; i++) {
 			//std::cout << "Waiting for thread " << i << " to finnish" << std::endl;
-			while (!thread_done[i]) 
-			{ 
+			while (!thread_done[i])
+			{
 				t01 = Time::now();
 				fsec fs = t01 - t00;
 				double steptime = fs.count();
@@ -531,7 +515,7 @@ void multithread_physics(int substeps, std::list<Particle>* particles, std::list
 
 void writeDebugData()
 {
-	if (OUTPUT_DEBUG) 
+	if (OUTPUT_DEBUG)
 	{
 		system("cls");
 		std::cout << "Number of Chunks: " << CHUNK_X * CHUNK_Y << std::endl;
@@ -543,7 +527,27 @@ void writeDebugData()
 		std::cout << "Particles: " << particle_count << std::endl;
 		std::cout << "Fatal errors avoided: " << previous_fatal_error << std::endl;
 	}
+
+}
+
+void createParticle(std::list<Particle>* list, vec2 p, int r, sfCol c, bool f, double b, double m, vec2 initialForce)
+{
+	Particle par = Particle(p, r, c, f, b, m);
+	par.addForce(&initialForce);
+	list->push_back(par);
 	
+	particle_count++;
+}
+
+void createTriangle(std::list<Triangle>* list, vec2 p, vec2 pt[3], sfCol c, bool h, float b, float m, vec2 initialForce)
+{
+	std::cout << "created triangle" << std::endl;
+	Triangle tri = Triangle(p, pt, c, h, b, m);
+	tri.addForce(&initialForce);
+	list->push_back(tri);
+	
+
+	triangle_count++;
 }
 
 void createParticle(std::list<Particle>* list, vec2 p, int r, sfCol c, bool f, double b, double m)
@@ -556,7 +560,7 @@ void createParticle(std::list<Particle>* list, vec2 p, int r, sfCol c, bool f, d
 void createTriangle(std::list<Triangle>* list, vec2 p, vec2 pt[3], sfCol c, bool h, float b, float m)
 {
 	std::cout << "created triangle" << std::endl;
-	Triangle par = Triangle(p, pt, c, h, b, m);
-	list->push_back(par);
+	Triangle tri = Triangle(p, pt, c, h, b, m);
+	list->push_back(tri);
 	triangle_count++;
 }
