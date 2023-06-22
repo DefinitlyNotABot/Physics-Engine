@@ -133,9 +133,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source_Files\custom_functions.cpp" />
     <ClCompile Include="Source_Files\main.cpp" />
     <ClCompile Include="Source_Files\Particle.cpp" />
     <ClCompile Include="Source_Files\PhysicsObject.cpp" />
+    <ClCompile Include="Source_Files\Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header_Files\classes.h" />
@@ -143,6 +145,7 @@
     <ClInclude Include="Header_Files\Particle.h" />
     <ClInclude Include="Header_Files\PhysicsObject.h" />
     <ClInclude Include="Header_Files\Polygon.h" />
+    <ClInclude Include="Header_Files\Triangle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

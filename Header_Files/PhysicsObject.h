@@ -9,7 +9,7 @@ public:
 	void addForce(vec2* dir);
 	void reset();
 
-	virtual void draw(sf::RenderWindow& window);
+	virtual void draw(sf::RenderWindow* window);
 	virtual void physicsStep();
 
 

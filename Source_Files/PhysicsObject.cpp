@@ -24,7 +24,7 @@ void PhysicsObject::addForce(vec2* dir)
 	force += *dir;
 }
 
-void PhysicsObject::draw(sf::RenderWindow& window)
+void PhysicsObject::draw(sf::RenderWindow* window)
 {
 	std::cout << "Draw not overridden" << std::endl;
 }

@@ -25,9 +25,9 @@ Particle::Particle(vec2 pos, double rad, sfCol col, bool isHollow, float bouncy,
 	
 }
 
-void Particle::draw(sf::RenderWindow& window)
+void Particle::draw(sf::RenderWindow* window)
 {
-	window.draw(dot);
+	window->draw(dot);
 }
 
 void Particle::createDot()

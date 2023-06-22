@@ -7,7 +7,7 @@ class Particle : public PhysicsObject
 {
 public:
 	Particle(vec2 pos, double rad, sfCol col, bool hollow, float bouncyness, float m);
-	void draw(sf::RenderWindow& window) override;
+	void draw(sf::RenderWindow* window) override;
 	void physicsStep() override;
 
 	void collision(const Particle& p);
