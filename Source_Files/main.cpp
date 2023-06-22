@@ -31,7 +31,7 @@ int particle_count = 0;
 int triangle_count = 0;
 
 
-float wind = 0.01;
+float wind = 0.3;
 
 double fatal_error_threashold = 0.25;
 
@@ -51,7 +51,7 @@ void drawScreen(sf::RenderWindow* window, std::list<Particle>* particles, std::l
 void insert_into_chunk(Particle* p);
 void reset_chunks();
 void move_to_chunk(Particle* p, int ox, int oy);
-void multithread_physics(int substeps, std::list<Particle>* particles);
+void multithread_physics(int substeps, std::list<Particle>* particles, std::list<Triangle>* triangles);
 void physicsSubStepC(int xyid[]);
 void physicsSubStepT(std::list<Particle>* particles, int num);
 void writeDebugData();
@@ -97,7 +97,7 @@ int main()
 		
 		max_physicsSteps = 0;
 	}
-	for (int i = 1; i <= 1; i++)
+	for (int i = 1; i <= 3; i++)
 	{
 		createTriangle(&triangles, vec2(i*100+100, 100), new vec2[3]{ vec2(-50, 0) ,vec2(50, 0) ,vec2(0, 75) }, white, true, 0.9, 1);
 
@@ -145,15 +145,9 @@ int main()
 		}
 
 
-		multithread_physics(10, &particles);
+		multithread_physics(10, &particles, &triangles);
 
-		for (auto& p : triangles)
-		{
-			p.reset();
-			p.addForce(v_vec_ptr);
-			p.physicsStep();
-
-		}
+		
 
 		
 
@@ -389,7 +383,7 @@ void reset_chunks()
 	p_out.push_back(nullptr);
 }
 
-void multithread_physics(int substeps, std::list<Particle>* particles)
+void multithread_physics(int substeps, std::list<Particle>* particles, std::list<Triangle>* triangles)
 {
 	std::chrono::steady_clock::time_point t0;
 	std::chrono::steady_clock::time_point t1;
@@ -397,6 +391,20 @@ void multithread_physics(int substeps, std::list<Particle>* particles)
 
 	for (int i = 0; i < NUM_SUBSTEPS; i++)
 	{
+
+		for (auto& p : *triangles)
+		{
+			p.reset();
+			p.addForce(v_vec_ptr);
+			p.physicsStep();
+
+		}
+
+
+
+
+
+
 		for (int i = 0; i < NUM_THREADS; i++) {
 			thread_done[i] = false;
 		}

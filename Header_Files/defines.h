@@ -17,11 +17,12 @@
 // define constants
 
 # define PI	3.14159265358979323846  // Pi
-# define g	0.1f	// Gravity
+# define g	0.5f	// Gravity
 # define AIR_RESSISTANCE 0.95f	// Air resistance, multiplied on movement vec
 
 # define SCREEN_WIDTH 800
 # define SCREEN_HEIGHT 600
+#define ANG_MOMENTUM_MULTIPLY 0.1
 
 
 

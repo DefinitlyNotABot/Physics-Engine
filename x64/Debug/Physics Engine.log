@@ -1,24 +1,16 @@
-﻿  Particle.cpp
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Particle.cpp(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Particle.cpp(11,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-  PhysicsObject.cpp
-  Triangle.cpp
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(22,16): warning C4305: '=': truncation from 'double' to 'float'
-  custom_functions.cpp
-  main.cpp
+﻿  main.cpp
 D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(34,12): warning C4305: 'initializing': truncation from 'double' to 'float'
 D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(102,120): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(356,8): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(350,8): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(357,8): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(351,8): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(543,41): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(543,38): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-  Generating Code...
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(551,41): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(551,38): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
   Physics Engine.vcxproj -> D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\x64\Debug\Physics Engine.exe
