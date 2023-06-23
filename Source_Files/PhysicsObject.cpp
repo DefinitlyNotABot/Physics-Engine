@@ -11,6 +11,7 @@ PhysicsObject::PhysicsObject()
 
 	force = vec2(0, 0);
 	moveDir = vec2(0, 0);
+	type = PH_OBJ;
 }
 
 void PhysicsObject::reset()
@@ -32,6 +33,17 @@ void PhysicsObject::draw(sf::RenderWindow* window)
 void PhysicsObject::physicsStep()
 {
 	std::cout << "PhysicsStep not overridden" << std::endl;
+}
+
+
+void PhysicsObject::collision(const PhysicsObject& p)
+{
+	std::cout << "Collision not overridden" << std::endl;
+}
+
+void PhysicsObject::collisionUpdatePos()
+{
+	std::cout << "collisionUpdatePos not overridden" << std::endl;
 }
 
 

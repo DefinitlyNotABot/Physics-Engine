@@ -10,27 +10,13 @@ public:
 	void draw(sf::RenderWindow* window) override;
 	void physicsStep() override;
 
-	void collision(const Particle& p);
-	void collisionUpdatePos();
+	void collision(const PhysicsObject& p) override;
+	void collisionUpdatePos() override;
 
-
-
-	float speed = 0.0f;
-	vec2 position;
-	vec2 center;
-
-	vec2 positionSave;
-
-	float bouncyness;
-
-	float mass;
-	
-	float radius;
-	sfCol color;
-	bool hollow;
-
-	sf::CircleShape dot;
-
+private:
 	void createDot();
+
+
+	
 	
 };

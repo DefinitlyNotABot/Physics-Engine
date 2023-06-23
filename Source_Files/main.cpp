@@ -41,23 +41,23 @@ vec2* v_vec_ptr = &v_vec;
 
 
 
-std::list<Particle*> p_chunks[CHUNK_X][CHUNK_Y];
-std::list<Particle*> p_oldChunks[CHUNK_X][CHUNK_Y];
-std::list<Particle*> p_out;
+std::list<PhysicsObject*> p_chunks[CHUNK_X][CHUNK_Y];
+std::list<PhysicsObject*> p_oldChunks[CHUNK_X][CHUNK_Y];
+std::list<PhysicsObject*> p_out;
 const int chunk_height = SCREEN_HEIGHT / CHUNK_Y;
 const int chunk_width = SCREEN_WIDTH / CHUNK_X;
 
-void drawScreen(sf::RenderWindow* window, std::list<Particle>* particles, std::list<Triangle>* triangles);
-void insert_into_chunk(Particle* p);
+void drawScreen(sf::RenderWindow* window, std::list<PhysicsObject*>* particles, std::list<Triangle>* triangles);
+void insert_into_chunk(PhysicsObject* p);
 void reset_chunks();
-void move_to_chunk(Particle* p, int ox, int oy);
-void multithread_physics(int substeps, std::list<Particle>* particles, std::list<Triangle>* triangles);
+void move_to_chunk(PhysicsObject* p, int ox, int oy);
+void multithread_physics(int substeps, std::list<PhysicsObject*>* particles, std::list<Triangle>* triangles);
 void physicsSubStepC(int xyid[]);
-void physicsSubStepT(std::list<Particle>* particles, int num);
+void physicsSubStepT(std::list<PhysicsObject*>* particles, int num);
 void writeDebugData();
-void createParticle(std::list<Particle>* list, vec2 p, int r, sfCol c, bool f, double b, double m, vec2 init);
+void createParticle(std::list<PhysicsObject*>* list, vec2 p, int r, sfCol c, bool f, double b, double m, vec2 init);
 void createTriangle(std::list<Triangle>* list, vec2 p, vec2 pt[3], sfCol c, bool h, float b, float m, vec2 init);
-void createParticle(std::list<Particle>* list, vec2 p, int r, sfCol c, bool f, double b, double m);
+void createParticle(std::list<PhysicsObject*>* list, vec2 p, int r, sfCol c, bool f, double b, double m);
 void createTriangle(std::list<Triangle>* list, vec2 p, vec2 pt[3], sfCol c, bool h, float b, float m);
 
 
@@ -66,10 +66,12 @@ void createTriangle(std::list<Triangle>* list, vec2 p, vec2 pt[3], sfCol c, bool
 
 int main()
 {
+
+
 	writeDebugData();
 	//PhysicsObject::gravity = g;
 	sf::ContextSettings settings;
-	settings.antialiasingLevel = 8;
+	settings.antialiasingLevel = 16;
 	// Initialize Window
 	sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Physics Engine", sf::Style::Titlebar | sf::Style::Close, settings);
 
@@ -84,7 +86,8 @@ int main()
 
 	// Create Lists of Objects
 
-	std::list<Particle> particles;
+	std::list<PhysicsObject*> objects;
+
 	std::list<Triangle> triangles;
 
 	int noSpawned = 0;
@@ -92,9 +95,9 @@ int main()
 	bool full = true;
 
 
-	for (int i = 1; i <= 25; i++)
+	for (int i = 1; i <= 2; i++)
 	{
-		createParticle(&particles, vec2(i * 20, 200), 5, white, full, 0.9, i, vec2(10*i*i, -100+i));
+		createParticle(&objects, vec2(i * 20, 200), 5, white, full, 0.9, i, vec2(10 * i * i, -100 + i));
 		full = !full;
 
 		max_physicsSteps = 0;
@@ -132,10 +135,10 @@ int main()
 
 
 
-		multithread_physics(10, &particles, &triangles);
+		multithread_physics(10, &objects, &triangles);
 
 
-		drawScreen(&window, &particles, &triangles);
+		drawScreen(&window, &objects, &triangles);
 
 	}
 
@@ -162,12 +165,11 @@ void physicsSubStepC(int xyid[])
 	{
 		for (int j = y0; j <= y1; j++)
 		{
-			for (Particle*& p : p_oldChunks[i][j])
+			for (PhysicsObject*& p : p_oldChunks[i][j])
 			{
 
 				if (p != nullptr)
 				{
-					
 					p->addForce(v_vec_ptr);
 					p->physicsStep();
 					p->reset();
@@ -249,9 +251,9 @@ void physicsSubStepC(int xyid[])
 
 
 
-void physicsSubStepT(std::list<Particle>* particles, int num)
+void physicsSubStepT(std::list<PhysicsObject*>* particles, int num)
 {
-	std::list<Particle*> p_oldOut = p_out;
+	std::list<PhysicsObject*> p_oldOut = p_out;
 
 	for (auto& p : p_oldOut)
 	{
@@ -259,6 +261,7 @@ void physicsSubStepT(std::list<Particle>* particles, int num)
 		{
 
 			p->addForce(v_vec_ptr);
+
 			p->physicsStep();
 			p->reset();
 
@@ -315,14 +318,14 @@ void physicsSubStepT(std::list<Particle>* particles, int num)
 
 
 
-void drawScreen(sf::RenderWindow* window, std::list<Particle>* particles, std::list<Triangle>* triangles)
+void drawScreen(sf::RenderWindow* window, std::list<PhysicsObject*>* particles, std::list<Triangle>* triangles)
 {
 
 	window->clear(bgCol);
 
 	for (auto& p : *particles)
 	{
-		p.draw(window);
+		p->draw(window);
 	}
 	for (auto& p : *triangles)
 	{
@@ -332,30 +335,7 @@ void drawScreen(sf::RenderWindow* window, std::list<Particle>* particles, std::l
 	window->display();
 }
 
-void insert_into_chunk(Particle* p)
-{
-	int x = p->position.x;
-	int y = p->position.y;
 
-	if (y < 0)
-	{
-		p_out.push_back(p);
-		return;
-	}
-	p_chunks[x / chunk_width][y / chunk_height].push_back(p);
-}
-
-void move_to_chunk(Particle* p, int ox, int oy)
-{
-	if (ox == -1 || oy == -1) {
-		p_out.remove(p);
-		insert_into_chunk(p);
-		return;
-	}
-
-	p_chunks[ox][oy].remove(p);
-	insert_into_chunk(p);
-}
 
 void reset_chunks()
 {
@@ -370,7 +350,7 @@ void reset_chunks()
 	p_out.push_back(nullptr);
 }
 
-void multithread_physics(int substeps, std::list<Particle>* particles, std::list<Triangle>* triangles)
+void multithread_physics(int substeps, std::list<PhysicsObject*>* particles, std::list<Triangle>* triangles)
 {
 	std::chrono::steady_clock::time_point t0;
 	std::chrono::steady_clock::time_point t1;
@@ -379,13 +359,13 @@ void multithread_physics(int substeps, std::list<Particle>* particles, std::list
 	for (int i = 0; i < NUM_SUBSTEPS; i++)
 	{
 
-		//for (auto& t : *triangles)
-		//{
+		for (auto& t : *triangles)
+		{
 
-		//	t.addForce(v_vec_ptr);
-		//	t.physicsStep();
-		//	t.reset();
-		//}
+			t.addForce(v_vec_ptr);
+			t.physicsStep();
+			t.reset();
+		}
 
 
 
@@ -398,7 +378,7 @@ void multithread_physics(int substeps, std::list<Particle>* particles, std::list
 
 		for (auto& p : *particles)
 		{
-			insert_into_chunk(&p);
+			insert_into_chunk(p);
 		}
 
 
@@ -474,7 +454,7 @@ void multithread_physics(int substeps, std::list<Particle>* particles, std::list
 
 		for (auto& p : *particles)
 		{
-			p.collisionUpdatePos();
+			p->collisionUpdatePos();
 		}
 		delete[] threads;
 	}
@@ -530,12 +510,11 @@ void writeDebugData()
 
 }
 
-void createParticle(std::list<Particle>* list, vec2 p, int r, sfCol c, bool f, double b, double m, vec2 initialForce)
+void createParticle(std::list<PhysicsObject*>* list, vec2 p, int r, sfCol c, bool f, double b, double m, vec2 initialForce)
 {
-	Particle par = Particle(p, r, c, f, b, m);
-	par.addForce(&initialForce);
+	PhysicsObject* par = new Particle(p, r, c, f, b, m);
 	list->push_back(par);
-	
+
 	particle_count++;
 }
 
@@ -543,16 +522,16 @@ void createTriangle(std::list<Triangle>* list, vec2 p, vec2 pt[3], sfCol c, bool
 {
 	std::cout << "created triangle" << std::endl;
 	Triangle tri = Triangle(p, pt, c, h, b, m);
-	tri.addForce(&initialForce);
+	//tri.addForce(&initialForce);
 	list->push_back(tri);
-	
+
 
 	triangle_count++;
 }
 
-void createParticle(std::list<Particle>* list, vec2 p, int r, sfCol c, bool f, double b, double m)
+void createParticle(std::list<PhysicsObject*>* list, vec2 p, int r, sfCol c, bool f, double b, double m)
 {
-	Particle par = Particle(p, r, c, f, b, m);
+	PhysicsObject* par = new Particle(p, r, c, f, b, m);
 	list->push_back(par);
 	particle_count++;
 }
@@ -563,4 +542,43 @@ void createTriangle(std::list<Triangle>* list, vec2 p, vec2 pt[3], sfCol c, bool
 	Triangle tri = Triangle(p, pt, c, h, b, m);
 	list->push_back(tri);
 	triangle_count++;
+}
+
+void insert_into_chunk(PhysicsObject* p)
+{
+	switch(p->type)
+	{
+	case PH_PAR:
+	{
+		int x = p->position.x;
+		int y = p->position.y;
+
+		if (y < 0)
+		{
+			p_out.push_back(p);
+			return;
+		}
+		p_chunks[x / chunk_width][y / chunk_height].push_back(p);
+		
+	}
+	break;
+	case PH_TRI:
+
+
+
+		break;
+	}
+	
+}
+
+void move_to_chunk(PhysicsObject* p, int ox, int oy)
+{
+	if (ox == -1 || oy == -1) {
+		p_out.remove(p);
+		insert_into_chunk(p);
+		return;
+	}
+
+	p_chunks[ox][oy].remove(p);
+	insert_into_chunk(p);
 }

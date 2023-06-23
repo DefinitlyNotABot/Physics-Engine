@@ -11,7 +11,10 @@ public:
 
 	virtual void draw(sf::RenderWindow* window);
 	virtual void physicsStep();
+	virtual void collision(const PhysicsObject& p);
+	virtual void collisionUpdatePos();
 
+	// general
 
 	float rotation = 0;
 	float angMomentum = 0;
@@ -29,8 +32,29 @@ public:
 	static int nextID;
 	int ID = 0;
 
+	int type;
 	float delta = 0;
 
 	static float gravity;
 	bool step_calculated = false;
+
+	// particle
+
+	float speed = 0.0f;
+	vec2 position;
+	vec2 center;
+
+	vec2 positionSave;
+
+	float bouncyness;
+
+	float mass;
+
+	float radius;
+	sfCol color;
+	bool hollow;
+
+	sf::CircleShape dot;
+
+	
 };

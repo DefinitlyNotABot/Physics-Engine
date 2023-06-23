@@ -22,7 +22,8 @@
 
 # define SCREEN_WIDTH 800
 # define SCREEN_HEIGHT 600
-#define ANG_MOMENTUM_MULTIPLY 0.1
+# define ANG_MOMENTUM_MULTIPLY 0.000001
+# define FLOOR_MASS std::numeric_limits<float>::max()
 
 
 
@@ -47,6 +48,23 @@ typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::milliseconds ms;
 typedef std::chrono::duration<float> fsec;
 
+// define enums
+
+enum ang_between_vec_types
+{
+	ANG_ABSOLUTE,
+	ANG_CLOCK_UNSIGNED,
+	ANG_CLOCK_SIGNED,
+	ANG_CCLOCK_UNSIGNED,
+	ANG_CCLOCK_SIGNED
+};
+
+enum physics_object_types
+{
+	PH_OBJ,
+	PH_PAR,
+	PH_TRI
+};
 
 // define classes
 
@@ -57,3 +75,5 @@ class Physics;
 
 sf::Vector2f vec2_2_sfVec2(glm::vec2* x);
 vec2 rotate_vector(vec2 v, float ang);
+float ang_between_vec(vec2 a, vec2 b, int type);
+float cross_2D(vec2 a, vec2 b);

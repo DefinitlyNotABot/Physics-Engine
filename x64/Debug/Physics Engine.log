@@ -1,17 +1,4 @@
-﻿  main.cpp
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(104,124): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(337,8): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
-          with
-          [
-              T=float
-          ]
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(338,8): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
-          with
-          [
-              T=float
-          ]
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(535,41): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(535,38): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(555,41): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(555,38): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+﻿  Particle.cpp
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Particle.cpp(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Particle.cpp(11,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
   Physics Engine.vcxproj -> D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\x64\Debug\Physics Engine.exe

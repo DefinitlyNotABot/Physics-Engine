@@ -19,7 +19,7 @@ Triangle::Triangle(vec2 pos, vec2 pts[3], sfCol col, bool isHollow, float bouncy
 	bouncyness = bouncy;
 	createTriangle();
 
-	angMomentum = 0.001;
+	angMomentum = 0.1;
 
 	mass = m;
 
@@ -30,12 +30,13 @@ Triangle::Triangle(vec2 pos, vec2 pts[3], sfCol col, bool isHollow, float bouncy
 
 	t0 = Time::now();
 	step_calculated = false;
+	type = PH_TRI;
 }
 
 void Triangle::draw(sf::RenderWindow* window)
 {
 	window->draw(triangle);
-	
+
 }
 
 void Triangle::createTriangle()
@@ -56,6 +57,11 @@ void Triangle::createTriangle()
 	for (int i = 0; i < 3; i++)
 	{
 		relativePoints[i] -= mid;
+	}for (int i = 0; i < 3; i++)
+	{
+		relativePoints[i] = rotate_vector(relativePoints[i], 1.5);
+		points[i] = relativePoints[i] + position;
+		triangle[i].position = vec2_2_sfVec2(&points[i]);
 	}
 
 	updateTriangle();
@@ -65,8 +71,8 @@ void Triangle::updateTriangle()
 {
 	for (int i = 0; i < 3; i++)
 	{
-		relativePoints[i] = rotate_vector(relativePoints[i], angMomentum);
-		points[i] = relativePoints[i] +  position;
+		relativePoints[i] = rotate_vector(relativePoints[i], angMomentum * delta);
+		points[i] = relativePoints[i] + position;
 		triangle[i].position = vec2_2_sfVec2(&points[i]);
 	}
 }
@@ -77,7 +83,6 @@ void Triangle::physicsStep()
 	if (!step_calculated)
 	{
 		//angMomentum *= AIR_RESSISTANCE;
-		
 		step_calculated = true;
 		t1 = Time::now();
 		fsec fs = t1 - t0;
@@ -86,7 +91,7 @@ void Triangle::physicsStep()
 
 		// Calculate Gravity
 		moveDir.y += g * delta;
-		
+
 		// ~Calculate Gravity
 
 		// Calculate Forces
@@ -99,7 +104,6 @@ void Triangle::physicsStep()
 
 		position += moveDir;
 
-		
 
 		updateTriangle();
 
@@ -108,63 +112,34 @@ void Triangle::physicsStep()
 		{
 			if (points[i].y > SCREEN_HEIGHT)
 			{
+				vec2 floorNormal = vec2(0,1);
+				vec2 contactPoint = points[i];
+
+				vec2 r = contactPoint - position;
+
+				// Calculate relative velocities
+				vec2 relativeVelocity = moveDir;
+				float relativeRotation = angMomentum;
+
+				// Calculate mass inverses
+				float triangleMassInverse = 1.0f / mass;
+				float floorMassInverse = 1 / FLOOR_MASS;
+
+				// Calculate impulse
+				float impulse = -(1 + bouncyness) * glm::dot(relativeVelocity, floorNormal / (triangleMassInverse + floorMassInverse));
+					
+
+				// Apply impulse to linear velocity
+				moveDir = glm::normalize(moveDir) * ((glm::length(moveDir) + impulse * triangleMassInverse * floorNormal) * bouncyness);
+
+				// Apply impulse to angular velocity
+				float a = (glm::length(relativePoints[0]) + glm::length(relativePoints[1]) + glm::length(relativePoints[2]))/3;
+				angMomentum += impulse * (1.0f / (mass / 6) * (a * a)) * cross_2D(r, floorNormal) * ANG_MOMENTUM_MULTIPLY;
 				
-				
 
-				vec2 contactVector = points[i] - moveDir;
-				float contactAngle = atan2(contactVector.y, contactVector.x);
-
-				// Update the angular momentum
-				angMomentum = bouncyness * contactAngle * ANG_MOMENTUM_MULTIPLY * angMomentum*10 + glm::length(moveDir)/2000 * contactAngle;
-
-				vec2 cV1 = vec2(1, 0) - moveDir;
-				float cA1 = atan2(cV1.y, cV1.x);
-
-				vec2 cV2 = vec2(1, 0) - vec2(0,1);
-				float cA2 = atan2(cV2.y, cV2.x);
-
-
-				if (cA1 > cA2)
-				{
-					if(points[i].x > position.x && angMomentum > 0)
-					{
-						std::cout << "now1!" << std::endl;
-						angMomentum *= -1;
-					}
-					if (points[i].x < position.x && angMomentum < 0)
-					{
-						std::cout << "now2!" << std::endl;
-						angMomentum *= -1;
-					}
-				}
-				if (cA1 < cA2)
-				{
-					if (points[i].x > position.x && angMomentum > 0)
-					{
-						std::cout << "now3!" << std::endl;
-						angMomentum *= -1;
-					}
-					if (points[i].x < position.x && angMomentum < 0)
-					{
-						std::cout << "now4!" << std::endl;
-						angMomentum *= -1;
-					}
-				}
-
-
+				moveDir = rotate_vector(moveDir, PI + ang_between_vec(moveDir, relativePoints[i], ANG_CLOCK_SIGNED));
 
 				position.y -= points[i].y - SCREEN_HEIGHT;
-				moveDir.y *= -bouncyness;
-
-				vec2 contactVector2 = vec2(1,0) - moveDir;
-				float contactAngle2 = atan2(contactVector.y, contactVector.x);
-
-
-				std::cout << contactAngle2 << std::endl << std::endl;
-
-				moveDir = rotate_vector(moveDir, contactAngle - contactAngle2);
-
-
 				updateTriangle();
 			}
 
@@ -223,17 +198,17 @@ void Triangle::physicsStep()
 
 		moveDirSave = moveDir;
 		positionSave = position;
-		
+
 
 		t0 = Time::now();
 	}
-	
+
 }
 
 void Triangle::collision(const Triangle& p)
 {
 	// Calculate the distance between the centers of the two particles
-	
+
 }
 
 void Triangle::collisionUpdatePos()

@@ -6,7 +6,7 @@ sfCol bgCol2 = sfCol(0, 0, 0);
 
 Particle::Particle(vec2 pos, double rad, sfCol col, bool isHollow, float bouncy, float m)
 {
-	
+
 	position = pos;
 	radius = rad;
 	color = col;
@@ -23,6 +23,7 @@ Particle::Particle(vec2 pos, double rad, sfCol col, bool isHollow, float bouncy,
 
 	t0 = Time::now();
 	step_calculated = false;
+	type = PH_PAR;
 }
 
 void Particle::draw(sf::RenderWindow* window)
@@ -50,7 +51,7 @@ void Particle::physicsStep()
 {
 	if (!step_calculated)
 	{
-		
+
 		t1 = Time::now();
 		fsec fs = t1 - t0;
 		float delta = fs.count();
@@ -95,38 +96,50 @@ void Particle::physicsStep()
 		positionSave = position;
 		t0 = Time::now();
 	}
-	
+
 }
 
-void Particle::collision(const Particle& p)
+void Particle::collision(const PhysicsObject& p)
 {
-	// Calculate the distance between the centers of the two particles
-	vec2 delta = p.center - center;
-	float distanceSq = glm::dot(delta, delta);
-
-	// Check if the particles are colliding
-	float radiusSum = radius + p.radius;
-	float radiusSumSq = radiusSum * radiusSum;
-	if (distanceSq <= radiusSumSq)
+	switch (p.type) {
+	case PH_PAR:
 	{
-		// Calculate the collision normal and unit vector
-		vec2 collisionNormal = normalize(delta);
+		// Calculate the distance between the centers of the two particles
+		vec2 delta = p.center - center;
+		float distanceSq = glm::dot(delta, delta);
 
-		// Calculate the relative velocity
-		vec2 relativeVelocity = p.moveDir - moveDir;
+		// Check if the particles are colliding
+		float radiusSum = radius + p.radius;
+		float radiusSumSq = radiusSum * radiusSum;
+		if (distanceSq <= radiusSumSq)
+		{
+			// Calculate the collision normal and unit vector
+			vec2 collisionNormal = normalize(delta);
 
-		// Calculate the impulse scalar
-		float impulseScalar = glm::dot(relativeVelocity, collisionNormal) * (1 + bouncyness) / (1 / mass + 1 / p.mass);
+			// Calculate the relative velocity
+			vec2 relativeVelocity = p.moveDir - moveDir;
 
-		// Apply impulses to update the velocities
-		moveDirSave += impulseScalar * collisionNormal / mass;
-		
+			// Calculate the impulse scalar
+			float impulseScalar = glm::dot(relativeVelocity, collisionNormal) * (1 + bouncyness) / (1 / mass + 1 / p.mass);
 
-		// Separate the particles to avoid overlap
-		vec2 separation = collisionNormal * (radiusSum - sqrt(distanceSq)) * 0.5f;
-		positionSave -= separation;
-		
+			// Apply impulses to update the velocities
+			moveDirSave += impulseScalar * collisionNormal / mass;
+
+
+			// Separate the particles to avoid overlap
+			vec2 separation = collisionNormal * (radiusSum - sqrt(distanceSq)) * 0.5f;
+			positionSave -= separation;
+
+		}
 	}
+	break;
+	case PH_TRI:
+		std::cout << "Colides with Triangle" << std::endl;
+		break;
+	default:
+		std::cout << "unknown type" << std::endl;
+	}
+
 }
 
 void Particle::collisionUpdatePos()
