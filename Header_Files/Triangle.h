@@ -12,7 +12,6 @@ public:
 
 	void collision(const Triangle& p);
 	void collisionUpdatePos();
-	void createTriangle();
 	void updateTriangle();
 
 
@@ -32,6 +31,9 @@ public:
 	vec2 points[3];
 
 	sf::VertexArray triangle;
+
+private:
+	void createTriangle();
 
 	
 

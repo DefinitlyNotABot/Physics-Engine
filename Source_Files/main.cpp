@@ -56,9 +56,9 @@ void physicsSubStepC(int xyid[]);
 void physicsSubStepT(std::list<PhysicsObject*>* particles, int num);
 void writeDebugData();
 void createParticle(std::list<PhysicsObject*>* list, vec2 p, int r, sfCol c, bool f, double b, double m, vec2 init);
-void createTriangle(std::list<Triangle>* list, vec2 p, vec2 pt[3], sfCol c, bool h, float b, float m, vec2 init);
+void createTriangle(std::list<PhysicsObject*>* list, vec2 p, vec2 pt[3], sfCol c, bool h, float b, float m, vec2 init);
 void createParticle(std::list<PhysicsObject*>* list, vec2 p, int r, sfCol c, bool f, double b, double m);
-void createTriangle(std::list<Triangle>* list, vec2 p, vec2 pt[3], sfCol c, bool h, float b, float m);
+void createTriangle(std::list<PhysicsObject*>* list, vec2 p, vec2 pt[3], sfCol c, bool h, float b, float m);
 
 
 
@@ -95,16 +95,16 @@ int main()
 	bool full = true;
 
 
-	for (int i = 1; i <= 2; i++)
+	for (int i = 1; i <= 0; i++)
 	{
 		createParticle(&objects, vec2(i * 20, 200), 5, white, full, 0.9, i, vec2(10 * i * i, -100 + i));
 		full = !full;
 
 		max_physicsSteps = 0;
 	}
-	for (int i = 1; i <= 0; i++)
+	for (int i = 1; i <= 1; i++)
 	{
-		createTriangle(&triangles, vec2(i * 100 + 100, 100), new vec2[3]{ vec2(-50, 0) ,vec2(50, 0) ,vec2(0, 75) }, white, true, 0.9, 1, vec2(1, 1));
+		createTriangle(&objects, vec2(i * 100 + 100, 100), new vec2[3]{ vec2(-50, 0) ,vec2(50, 0) ,vec2(0, 75) }, white, true, 0.9, 1, vec2(1, 1));
 
 		max_physicsSteps = 0;
 	}
@@ -350,7 +350,7 @@ void reset_chunks()
 	p_out.push_back(nullptr);
 }
 
-void multithread_physics(int substeps, std::list<PhysicsObject*>* particles, std::list<Triangle>* triangles)
+void multithread_physics(int substeps, std::list<PhysicsObject*>* objects, std::list<Triangle>* triangles)
 {
 	std::chrono::steady_clock::time_point t0;
 	std::chrono::steady_clock::time_point t1;
@@ -359,13 +359,6 @@ void multithread_physics(int substeps, std::list<PhysicsObject*>* particles, std
 	for (int i = 0; i < NUM_SUBSTEPS; i++)
 	{
 
-		for (auto& t : *triangles)
-		{
-
-			t.addForce(v_vec_ptr);
-			t.physicsStep();
-			t.reset();
-		}
 
 
 
@@ -376,7 +369,7 @@ void multithread_physics(int substeps, std::list<PhysicsObject*>* particles, std
 
 		reset_chunks();
 
-		for (auto& p : *particles)
+		for (auto& p : *objects)
 		{
 			insert_into_chunk(p);
 		}
@@ -397,7 +390,7 @@ void multithread_physics(int substeps, std::list<PhysicsObject*>* particles, std
 			threads[i] = std::thread(physicsSubStepC, new int[5] {x0, x1, y0, y1, i});
 
 		}
-		threads[NUM_THREADS - 1] = std::thread(physicsSubStepT, particles, NUM_THREADS - 1);
+		threads[NUM_THREADS - 1] = std::thread(physicsSubStepT, objects, NUM_THREADS - 1);
 
 		std::chrono::steady_clock::time_point t00;
 		std::chrono::steady_clock::time_point t01;
@@ -452,7 +445,7 @@ void multithread_physics(int substeps, std::list<PhysicsObject*>* particles, std
 
 
 
-		for (auto& p : *particles)
+		for (auto& p : *objects)
 		{
 			p->collisionUpdatePos();
 		}
@@ -518,11 +511,9 @@ void createParticle(std::list<PhysicsObject*>* list, vec2 p, int r, sfCol c, boo
 	particle_count++;
 }
 
-void createTriangle(std::list<Triangle>* list, vec2 p, vec2 pt[3], sfCol c, bool h, float b, float m, vec2 initialForce)
+void createTriangle(std::list<PhysicsObject*>* list, vec2 p, vec2 pt[3], sfCol c, bool h, float b, float m, vec2 initialForce)
 {
-	std::cout << "created triangle" << std::endl;
-	Triangle tri = Triangle(p, pt, c, h, b, m);
-	//tri.addForce(&initialForce);
+	PhysicsObject* tri = new Triangle(p, pt, c, h, b, m);
 	list->push_back(tri);
 
 
@@ -536,10 +527,9 @@ void createParticle(std::list<PhysicsObject*>* list, vec2 p, int r, sfCol c, boo
 	particle_count++;
 }
 
-void createTriangle(std::list<Triangle>* list, vec2 p, vec2 pt[3], sfCol c, bool h, float b, float m)
+void createTriangle(std::list<PhysicsObject*>* list, vec2 p, vec2 pt[3], sfCol c, bool h, float b, float m)
 {
-	std::cout << "created triangle" << std::endl;
-	Triangle tri = Triangle(p, pt, c, h, b, m);
+	PhysicsObject* tri = new Triangle(p, pt, c, h, b, m);
 	list->push_back(tri);
 	triangle_count++;
 }
@@ -564,7 +554,7 @@ void insert_into_chunk(PhysicsObject* p)
 	break;
 	case PH_TRI:
 
-
+		p_chunks[0][0].push_back(p);
 
 		break;
 	}
