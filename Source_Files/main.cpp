@@ -102,9 +102,9 @@ int main()
 
 		max_physicsSteps = 0;
 	}
-	for (int i = 1; i <= 1; i++)
+	for (int i = 1; i <= 2; i++)
 	{
-		createTriangle(&objects, vec2(i * 100 + 100, 100), new vec2[3]{ vec2(-50, 0) ,vec2(50, 0) ,vec2(0, 75) }, white, true, 0.9, 1, vec2(1, 1));
+		createTriangle(&objects, vec2(i * 100 + 100, 100), new vec2[3]{ vec2(-50, 0) ,vec2(50, 0) ,vec2(0, 75) }, white, true, 0.7, 1, vec2(50, 0));
 
 		max_physicsSteps = 0;
 	}
@@ -259,13 +259,10 @@ void physicsSubStepT(std::list<PhysicsObject*>* particles, int num)
 	{
 		if (p != nullptr)
 		{
-
 			p->addForce(v_vec_ptr);
 
 			p->physicsStep();
 			p->reset();
-
-			move_to_chunk(p, -1, -1);
 		}
 	}
 	thread_done[num] = true;
@@ -344,6 +341,7 @@ void reset_chunks()
 		for (int j = 0; j < CHUNK_X; j++)
 		{
 			p_chunks[i][j].clear();
+			p_chunks[i][j].push_back(nullptr);
 		}
 	}
 	p_out.clear();
@@ -368,7 +366,6 @@ void multithread_physics(int substeps, std::list<PhysicsObject*>* objects, std::
 
 
 		reset_chunks();
-
 		for (auto& p : *objects)
 		{
 			insert_into_chunk(p);
@@ -536,7 +533,8 @@ void createTriangle(std::list<PhysicsObject*>* list, vec2 p, vec2 pt[3], sfCol c
 
 void insert_into_chunk(PhysicsObject* p)
 {
-	switch(p->type)
+	std::cout << "539" << std::endl;
+	switch (p->type)
 	{
 	case PH_PAR:
 	{
@@ -549,26 +547,68 @@ void insert_into_chunk(PhysicsObject* p)
 			return;
 		}
 		p_chunks[x / chunk_width][y / chunk_height].push_back(p);
-		
+
 	}
 	break;
 	case PH_TRI:
+		int x1 = std::min(p->points[0].x, std::min(p->points[1].x, p->points[2].x));
+		int x2 = std::max(p->points[0].x, std::max(p->points[1].x, p->points[2].x));
 
-		p_chunks[0][0].push_back(p);
+		int y1 = std::min(p->points[0].y, std::min(p->points[1].y, p->points[2].y));
+		int y2 = std::max(p->points[0].y, std::max(p->points[1].y, p->points[2].y));
+		bool out = false;
+		for (int i = x1 / chunk_width; i <= x2 / chunk_width && i < CHUNK_X; i++) {
+			for (int j = y1 / chunk_height; j <= y2 / chunk_height && j < CHUNK_Y; j++) {
+
+				if (j > CHUNK_Y)
+				{
+					if (!out) {
+						p_out.push_back(p);
+						out = true;
+					}
+					continue;
+				}
+				std::cout << "572 " << i << " " << j << std::endl;
+				p_chunks[i][j].push_back(p);
+				std::cout << "573" << std::endl;
+			}
+		}
 
 		break;
 	}
-	
+
 }
 
 void move_to_chunk(PhysicsObject* p, int ox, int oy)
 {
-	if (ox == -1 || oy == -1) {
-		p_out.remove(p);
+
+
+	switch (p->type)
+	{
+	case PH_PAR:
+	{
+		if (ox == -1 || oy == -1) {
+			p_out.remove(p);
+			insert_into_chunk(p);
+			return;
+		}
+
+		p_chunks[ox][oy].remove(p);
 		insert_into_chunk(p);
-		return;
+	}
+	break;
+	case PH_TRI:
+	{
+		if (ox == -1 || oy == -1) {
+			p_out.remove(p);
+			insert_into_chunk(p);
+			return;
+		}
+
+		p_chunks[ox][oy].remove(p);
+		insert_into_chunk(p);
 	}
 
-	p_chunks[ox][oy].remove(p);
-	insert_into_chunk(p);
+	break;
+	}
 }

@@ -18,6 +18,7 @@ void PhysicsObject::reset()
 {
 	force = vec2(0, 0);
 	step_calculated = false;
+	//interacted_objects.clear();
 }
 
 void PhysicsObject::addForce(vec2* dir)

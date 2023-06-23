@@ -69,6 +69,7 @@ void Triangle::createTriangle()
 
 void Triangle::updateTriangle()
 {
+	rotation += angMomentum * delta;
 	for (int i = 0; i < 3; i++)
 	{
 		relativePoints[i] = rotate_vector(relativePoints[i], angMomentum * delta);
@@ -112,14 +113,14 @@ void Triangle::physicsStep()
 		{
 			if (points[i].y > SCREEN_HEIGHT)
 			{
-				vec2 floorNormal = vec2(0,1);
+				vec2 floorNormal = vec2(0, 1);
 				vec2 contactPoint = points[i];
 
 				vec2 r = contactPoint - position;
 
 				// Calculate relative velocities
-				vec2 relativeVelocity = moveDir;
-				float relativeRotation = angMomentum;
+				vec2 relativeVelocity = vec2(0, moveDir.y);
+				float relativeRotation = rotation;
 
 				// Calculate mass inverses
 				float triangleMassInverse = 1.0f / mass;
@@ -127,15 +128,15 @@ void Triangle::physicsStep()
 
 				// Calculate impulse
 				float impulse = -(1 + bouncyness) * glm::dot(relativeVelocity, floorNormal / (triangleMassInverse + floorMassInverse));
-					
+
 
 				// Apply impulse to linear velocity
 				moveDir = glm::normalize(moveDir) * ((glm::length(moveDir) + impulse * triangleMassInverse * floorNormal) * bouncyness);
 
 				// Apply impulse to angular velocity
-				float a = (glm::length(relativePoints[0]) + glm::length(relativePoints[1]) + glm::length(relativePoints[2]))/3;
+				float a = (glm::length(relativePoints[0]) + glm::length(relativePoints[1]) + glm::length(relativePoints[2])) / 3;
 				angMomentum += impulse * (1.0f / (mass / 6) * (a * a)) * cross_2D(r, floorNormal) * ANG_MOMENTUM_MULTIPLY;
-				
+
 
 				moveDir = rotate_vector(moveDir, PI + ang_between_vec(moveDir, relativePoints[i], ANG_CLOCK_SIGNED));
 
@@ -189,13 +190,6 @@ void Triangle::physicsStep()
 			}
 		}
 
-
-
-
-
-
-
-
 		moveDirSave = moveDir;
 		positionSave = position;
 
@@ -205,9 +199,231 @@ void Triangle::physicsStep()
 
 }
 
-void Triangle::collision(const Triangle& p)
+void Triangle::collision(const PhysicsObject& p)
 {
 	// Calculate the distance between the centers of the two particles
+	switch (p.type)
+	{
+	case PH_PAR:
+		break;
+	case PH_TRI:
+	{
+		//bool found = (std::find(interacted_objects.begin(), interacted_objects.end(), p.ID) != interacted_objects.end());
+		bool found = false;
+		if (!found)
+		{
+			for (int i = 0; i < 3; i++)
+			{
+				if (PointInTriangle(points[i], p.points[0], p.points[1], p.points[2]))
+				{
+					
+					vec2 floorNormal = vec2(0, 0);
+					vec2 side = vec2(0, 0);
+
+					float d0 = glm::length(center - p.points[0]);
+					float d1 = glm::length(center - p.points[1]);
+					float d2 = glm::length(center - p.points[2]);
+
+					
+
+					float longest = std::max(d0, std::max(d1, d2));
+					
+
+					if (d0 == longest)
+					{
+						side = p.points[1] - p.points[2];
+						floorNormal = glm::normalize(rotate_vector(side, PI / 2));
+						if (ang_between_vec(floorNormal, p.center - points[0], ANG_ABSOLUTE) < PI / 2)
+						{
+							floorNormal = rotate_vector(floorNormal, PI);
+						}
+					}
+					else if (d1 == longest)
+					{
+						side = p.points[0] - p.points[2];
+						floorNormal = glm::normalize(rotate_vector(side, PI / 2));
+						if (ang_between_vec(floorNormal, p.center - points[1], ANG_ABSOLUTE) < PI / 2)
+						{
+							floorNormal = rotate_vector(floorNormal, PI);
+						}
+					}
+					else if (d2 == longest)
+					{
+						side = p.points[0] - p.points[1];
+						floorNormal = glm::normalize(rotate_vector(side, PI / 2));
+						if (ang_between_vec(floorNormal, p.center - points[2], ANG_ABSOLUTE) < PI / 2)
+						{
+							floorNormal = rotate_vector(floorNormal, PI);
+						}
+					}
+
+
+
+
+					vec2 contactPoint = points[i];
+
+					vec2 r = contactPoint - position;
+
+					// Calculate relative velocities
+					vec2 relativeVelocity = vec2(0, moveDir.y);
+					float relativeRotation = rotation;
+
+					// Calculate mass inverses
+					float triangleMassInverse = 1.0f / mass;
+					float floorMassInverse = 1 / p.mass;
+
+					// Calculate impulse
+					float impulse = -(1 + bouncyness) * glm::dot(relativeVelocity, floorNormal / (triangleMassInverse + floorMassInverse));
+
+
+					// Apply impulse to linear velocity
+					moveDir = glm::normalize(moveDir) * ((glm::length(moveDir) + impulse * triangleMassInverse * floorNormal) * bouncyness);
+
+					// Apply impulse to angular velocity
+					float a = (glm::length(relativePoints[0]) + glm::length(relativePoints[1]) + glm::length(relativePoints[2])) / 3;
+					angMomentum += impulse * (1.0f / (mass / 6) * (a * a)) * cross_2D(r, floorNormal) * ANG_MOMENTUM_MULTIPLY;
+
+
+					moveDir = rotate_vector(moveDir, PI + ang_between_vec(moveDir, relativePoints[i], ANG_CLOCK_SIGNED));
+
+
+					vec2 intersect = vec2(0, 0);
+
+					if (d0 == longest)
+					{
+						
+						intersect = calculateIntersection(center, points[i], p.points[1], p.points[2]);
+					}
+					else if (d1 == longest)
+					{
+						intersect = calculateIntersection(center, points[i], p.points[0], p.points[2]);
+					}
+					else if (d2 == longest)
+					{
+						intersect = calculateIntersection(center, points[i], p.points[0], p.points[1]);
+					}
+
+
+					vec2 overlap = points[i] - intersect;
+
+					position += overlap;
+					
+
+
+					updateTriangle();
+					//interacted_objects.push_back(p.ID);
+				}
+
+
+
+				if (PointInTriangle(p.points[i], points[0], points[1], points[2]))
+				{
+					
+					vec2 floorNormal = vec2(0, 0);
+					vec2 side = vec2(0, 0);
+
+					float d0 = glm::length(p.center - points[0]);
+					float d1 = glm::length(p.center - points[1]);
+					float d2 = glm::length(p.center - points[2]);
+
+
+
+					float longest = std::max(d0, std::max(d1, d2));
+
+
+					if (d0 == longest)
+					{
+						side = points[1] - points[2];
+						floorNormal = glm::normalize(rotate_vector(side, PI / 2));
+						if (ang_between_vec(floorNormal, center - p.points[0], ANG_ABSOLUTE) < PI / 2)
+						{
+							floorNormal = rotate_vector(floorNormal, PI);
+						}
+					}
+					else if (d1 == longest)
+					{
+						side = points[0] - points[2];
+						floorNormal = glm::normalize(rotate_vector(side, PI / 2));
+						if (ang_between_vec(floorNormal, center - p.points[1], ANG_ABSOLUTE) < PI / 2)
+						{
+							floorNormal = rotate_vector(floorNormal, PI);
+						}
+					}
+					else if (d2 == longest)
+					{
+						side = points[0] - points[1];
+						floorNormal = glm::normalize(rotate_vector(side, PI / 2));
+						if (ang_between_vec(floorNormal, center - p.points[2], ANG_ABSOLUTE) < PI / 2)
+						{
+							floorNormal = rotate_vector(floorNormal, PI);
+						}
+					}
+
+
+
+
+					vec2 contactPoint = points[i];
+
+					vec2 r = contactPoint - position;
+
+					// Calculate relative velocities
+					vec2 relativeVelocity = vec2(0, moveDir.y);
+					float relativeRotation = rotation;
+
+					// Calculate mass inverses
+					float triangleMassInverse = 1.0f / mass;
+					float floorMassInverse = 1 / p.mass;
+
+					// Calculate impulse
+					float impulse = -(1 + bouncyness) * glm::dot(relativeVelocity, floorNormal / (triangleMassInverse + floorMassInverse));
+
+
+					// Apply impulse to linear velocity
+					moveDir = glm::normalize(moveDir) * ((glm::length(moveDir) + impulse * triangleMassInverse * floorNormal) * bouncyness);
+
+					// Apply impulse to angular velocity
+					float a = (glm::length(relativePoints[0]) + glm::length(relativePoints[1]) + glm::length(relativePoints[2])) / 3;
+					angMomentum += impulse * (1.0f / (mass / 6) * (a * a)) * cross_2D(r, floorNormal) * ANG_MOMENTUM_MULTIPLY;
+
+
+					moveDir = rotate_vector(moveDir, PI + ang_between_vec(moveDir, relativePoints[i], ANG_CLOCK_SIGNED));
+
+
+					vec2 intersect = vec2(0, 0);
+
+					if (d0 == longest)
+					{
+
+						intersect = calculateIntersection(center, points[i], p.points[1], p.points[2]);
+					}
+					else if (d1 == longest)
+					{
+						intersect = calculateIntersection(center, points[i], p.points[0], p.points[2]);
+					}
+					else if (d2 == longest)
+					{
+						intersect = calculateIntersection(center, points[i], p.points[0], p.points[1]);
+					}
+
+
+					vec2 overlap = points[i] - intersect;
+
+					position += overlap;
+
+
+
+					updateTriangle();
+					//interacted_objects.push_back(p.ID);
+				}
+
+			}
+		}
+		
+
+		
+	}
+	break;
+	}
 
 }
 

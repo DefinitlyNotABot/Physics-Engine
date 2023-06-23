@@ -38,7 +38,7 @@ public:
 	static float gravity;
 	bool step_calculated = false;
 
-	// particle
+	
 
 	float speed = 0.0f;
 	vec2 position;
@@ -50,11 +50,25 @@ public:
 
 	float mass;
 
-	float radius;
+	
 	sfCol color;
 	bool hollow;
 
+	std::list<int> interacted_objects;
+
+	// particle
+
+	float radius;
 	sf::CircleShape dot;
+
+
+
+	// Triangle
+
+	vec2 relativePoints[3];
+	vec2 points[3];
+
+	sf::VertexArray triangle;
 
 	
 };
