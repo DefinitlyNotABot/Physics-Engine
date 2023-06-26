@@ -11,9 +11,13 @@
 #define NUM_THREADS 6
 #define NUM_SUBSTEPS 2
 #define OUTPUT_DEBUG false
+#define INITIAL_PARTICLES 0
+#define INITIAL_TRIANGLES 2
 
 
 bool thread_done[NUM_THREADS];
+
+int stepcount = 0;
 
 sfCol bgCol = sfCol(0, 0, 0);
 sfCol white = sfCol(255, 255, 255);
@@ -31,7 +35,7 @@ int particle_count = 0;
 int triangle_count = 0;
 
 
-float wind = 0.0;
+float wind = 0.1;
 
 double fatal_error_threashold = 0.25;
 
@@ -39,7 +43,7 @@ vec2 v_vec = vec2(wind, 0);
 vec2 g_vec = vec2(0, g);
 vec2* v_vec_ptr = &v_vec;
 
-
+std::list<PhysicsObject*> thread_objects[NUM_THREADS];
 
 std::list<PhysicsObject*> p_chunks[CHUNK_X][CHUNK_Y];
 std::list<PhysicsObject*> p_oldChunks[CHUNK_X][CHUNK_Y];
@@ -47,11 +51,10 @@ std::list<PhysicsObject*> p_out;
 const int chunk_height = SCREEN_HEIGHT / CHUNK_Y;
 const int chunk_width = SCREEN_WIDTH / CHUNK_X;
 
-void drawScreen(sf::RenderWindow* window, std::list<PhysicsObject*>* particles, std::list<Triangle>* triangles);
+void drawScreen(sf::RenderWindow* window, std::list<PhysicsObject*>* particles);
 void insert_into_chunk(PhysicsObject* p);
 void reset_chunks();
-void move_to_chunk(PhysicsObject* p, int ox, int oy);
-void multithread_physics(int substeps, std::list<PhysicsObject*>* particles, std::list<Triangle>* triangles);
+void multithread_physics(int substeps, std::list<PhysicsObject*>* particles);
 void physicsSubStepC(int xyid[]);
 void physicsSubStepT(std::list<PhysicsObject*>* particles, int num);
 void writeDebugData();
@@ -59,6 +62,7 @@ void createParticle(std::list<PhysicsObject*>* list, vec2 p, int r, sfCol c, boo
 void createTriangle(std::list<PhysicsObject*>* list, vec2 p, vec2 pt[3], sfCol c, bool h, float b, float m, vec2 init);
 void createParticle(std::list<PhysicsObject*>* list, vec2 p, int r, sfCol c, bool f, double b, double m);
 void createTriangle(std::list<PhysicsObject*>* list, vec2 p, vec2 pt[3], sfCol c, bool h, float b, float m);
+void calc_physics(std::list<PhysicsObject*>& objects);
 
 
 
@@ -71,9 +75,9 @@ int main()
 	writeDebugData();
 	//PhysicsObject::gravity = g;
 	sf::ContextSettings settings;
-	settings.antialiasingLevel = 16;
+	settings.antialiasingLevel = 2;
 	// Initialize Window
-	sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Physics Engine", sf::Style::Titlebar | sf::Style::Close, settings);
+	sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "2D Physics Engine in C++", sf::Style::Titlebar | sf::Style::Close, settings);
 
 	if (!window.isOpen()) {
 		std::cout << "Window not created" << std::endl;
@@ -88,23 +92,21 @@ int main()
 
 	std::list<PhysicsObject*> objects;
 
-	std::list<Triangle> triangles;
-
 	int noSpawned = 0;
 	// Initially fill lists
 	bool full = true;
 
 
-	for (int i = 1; i <= 0; i++)
+	for (int i = 1; i <= INITIAL_PARTICLES; i++)
 	{
 		createParticle(&objects, vec2(i * 20, 200), 5, white, full, 0.9, i, vec2(10 * i * i, -100 + i));
 		full = !full;
 
 		max_physicsSteps = 0;
 	}
-	for (int i = 1; i <= 2; i++)
+	for (int i = 1; i <= INITIAL_TRIANGLES; i++)
 	{
-		createTriangle(&objects, vec2(i * 100 + 100, 100), new vec2[3]{ vec2(-50, 0) ,vec2(50, 0) ,vec2(0, 75) }, white, true, 0.7, 1, vec2(50, 0));
+		createTriangle(&objects, vec2(100, i * 100 + 100), new vec2[3]{ vec2(-50, 0) ,vec2(50, 0) ,vec2(0, 75) }, white, true, 0.7, 1, vec2(50, 0));
 
 		max_physicsSteps = 0;
 	}
@@ -135,10 +137,10 @@ int main()
 
 
 
-		multithread_physics(10, &objects, &triangles);
+		multithread_physics(10, &objects);
 
 
-		drawScreen(&window, &objects, &triangles);
+		drawScreen(&window, &objects);
 
 	}
 
@@ -153,74 +155,31 @@ void physicsSubStepC(int xyid[])
 	int y0 = xyid[2];
 	int y1 = xyid[3];
 	int id = xyid[4];
-	for (int i = x0; i <= x1; i++)
-	{
-		for (int j = y0; j <= y1; j++)
-		{
-			p_oldChunks[i][j] = p_chunks[i][j];
-		}
-	}
+
+
 
 	for (int i = x0; i <= x1; i++)
 	{
 		for (int j = y0; j <= y1; j++)
 		{
-			for (PhysicsObject*& p : p_oldChunks[i][j])
+			for (PhysicsObject*& p : p_chunks[i][j])
 			{
-
-				if (p != nullptr)
-				{
-					p->addForce(v_vec_ptr);
-					p->physicsStep();
-					p->reset();
-				}
-
-			}
-		}
-	}
-	std::chrono::steady_clock::time_point t00;
-	std::chrono::steady_clock::time_point t01;
-	t00 = Time::now();
-
-	thread_done[id] = true;
-	for (int i = 0; i < NUM_THREADS; i++) {
-
-		while (!thread_done[i]) {
-			t01 = Time::now();
-			fsec fs = t01 - t00;
-			double steptime = fs.count();
-			//std::cout << "waiting for thread " << steptime << std::endl;
-			if (steptime > fatal_error_threashold)
-			{
-				std::cout << "Thread " << id << " waiting for thread " << i << std::endl;
-				i += 1;
-				previous_fatal_error++;
-				writeDebugData();
-			}
-
-		}
-	}
-
-	while (thread_done[0]) { ; }
-
-	for (int i = x0; i <= x1; i++)
-	{
-		for (int j = y0; j <= y1; j++)
-		{
-			for (auto& p : p_chunks[i][j])
-			{
+				//std::cout << i << " " << j << std::endl;
 				if (p != nullptr)
 				{
 					for (int k = std::max(i - 1, 0); k <= std::min(i + 1, CHUNK_X - 1); k++)
 					{
 						for (int l = std::max(j - 1, 0); l <= std::min(j + 1, CHUNK_Y - 1); l++)
 						{
-
-							for (auto& q : p_chunks[k][l])
+							for (PhysicsObject*& q : p_chunks[k][l])
 							{
-								if (q != nullptr && p->ID != q->ID)
+								if (q != nullptr)
 								{
-									p->collision(*q);
+									if (p->ID != q->ID)
+									{
+										p->collision(*q);
+									}
+
 								}
 							}
 
@@ -233,6 +192,8 @@ void physicsSubStepC(int xyid[])
 						{
 							if (q != nullptr && p->ID != q->ID)
 							{
+								std::cout << "ho" << std::endl;
+
 								p->collision(*q);
 							}
 						}
@@ -253,40 +214,7 @@ void physicsSubStepC(int xyid[])
 
 void physicsSubStepT(std::list<PhysicsObject*>* particles, int num)
 {
-	std::list<PhysicsObject*> p_oldOut = p_out;
 
-	for (auto& p : p_oldOut)
-	{
-		if (p != nullptr)
-		{
-			p->addForce(v_vec_ptr);
-
-			p->physicsStep();
-			p->reset();
-		}
-	}
-	thread_done[num] = true;
-	std::chrono::steady_clock::time_point t00;
-	std::chrono::steady_clock::time_point t01;
-	t00 = Time::now();
-	for (int i = 0; i < NUM_THREADS; i++) {
-		while (!thread_done[i])
-		{
-			t01 = Time::now();
-			fsec fs = t01 - t00;
-			double steptime = fs.count();
-			//std::cout << "waiting for thread " << steptime << std::endl;
-			if (steptime > fatal_error_threashold)
-			{
-				std::cout << "Thread out waiting for thread " << i << std::endl;
-				i += 1;
-				previous_fatal_error++;
-				writeDebugData();
-			}
-
-		}
-	}
-	while (thread_done[0]) { ; }
 	for (auto& p : p_out)
 	{
 		if (p != nullptr)
@@ -315,19 +243,17 @@ void physicsSubStepT(std::list<PhysicsObject*>* particles, int num)
 
 
 
-void drawScreen(sf::RenderWindow* window, std::list<PhysicsObject*>* particles, std::list<Triangle>* triangles)
+void drawScreen(sf::RenderWindow* window, std::list<PhysicsObject*>* particles)
 {
 
 	window->clear(bgCol);
 
 	for (auto& p : *particles)
 	{
+
 		p->draw(window);
 	}
-	for (auto& p : *triangles)
-	{
-		p.draw(window);
-	}
+
 
 	window->display();
 }
@@ -341,29 +267,71 @@ void reset_chunks()
 		for (int j = 0; j < CHUNK_X; j++)
 		{
 			p_chunks[i][j].clear();
-			p_chunks[i][j].push_back(nullptr);
 		}
 	}
 	p_out.clear();
-	p_out.push_back(nullptr);
 }
 
-void multithread_physics(int substeps, std::list<PhysicsObject*>* objects, std::list<Triangle>* triangles)
+
+void calc_physics(std::list<PhysicsObject*>& objects)
+{
+	for (PhysicsObject*& p : objects)
+	{
+
+		if (p != nullptr)
+		{
+			p->addForce(v_vec_ptr);
+			p->physicsStep(0);
+			p->reset();
+		}
+
+	}
+}
+
+
+void multithread_physics(int substeps, std::list<PhysicsObject*>* objects)
 {
 	std::chrono::steady_clock::time_point t0;
 	std::chrono::steady_clock::time_point t1;
+	std::chrono::steady_clock::time_point t00;
+	std::chrono::steady_clock::time_point t01;
 	t0 = Time::now();
 
 	for (int i = 0; i < NUM_SUBSTEPS; i++)
 	{
+		stepcount++;
 
 
-
-
-		for (int i = 0; i < NUM_THREADS; i++) {
-			thread_done[i] = false;
+		int count = 0;
+		for (PhysicsObject* p : *objects) {
+			if (p != nullptr) {
+				thread_objects[count % NUM_THREADS].push_back(p);
+				count++;
+			}
 		}
 
+		std::thread* threads = new std::thread[NUM_THREADS];
+
+		for (int i = 0; i < NUM_THREADS; ++i) {
+			if (!thread_objects[i].empty()) {
+				threads[i] = std::thread(calc_physics, std::ref(thread_objects[i]));
+			}
+		}
+
+
+		t00 = Time::now();
+		for (int i = 0; i < NUM_THREADS; i++) {
+			if (thread_objects[i].size() > 0) {
+				t01 = Time::now();
+				fsec fs = t01 - t00;
+				double steptime = fs.count();
+				if (steptime > 1)
+				{
+					std::cout << "waiting for thread to join " << i << std::endl;
+				}
+				threads[i].join();
+			}
+		}
 
 		reset_chunks();
 		for (auto& p : *objects)
@@ -371,9 +339,6 @@ void multithread_physics(int substeps, std::list<PhysicsObject*>* objects, std::
 			insert_into_chunk(p);
 		}
 
-
-
-		std::thread* threads = new std::thread[NUM_THREADS];
 
 		int xot = CHUNK_X / (NUM_THREADS - 1);
 
@@ -389,57 +354,19 @@ void multithread_physics(int substeps, std::list<PhysicsObject*>* objects, std::
 		}
 		threads[NUM_THREADS - 1] = std::thread(physicsSubStepT, objects, NUM_THREADS - 1);
 
-		std::chrono::steady_clock::time_point t00;
-		std::chrono::steady_clock::time_point t01;
-		t00 = Time::now();
-		for (int i = 0; i < NUM_THREADS; i++) {
-			//std::cout << "Waiting for thread " << i << " to finnish" << std::endl;
-			while (!thread_done[i])
-			{
-				t01 = Time::now();
-				fsec fs = t01 - t00;
-				double steptime = fs.count();
-				//std::cout << "waiting for thread " << steptime << std::endl;
-				if (steptime > 1)
-				{
-					std::cout << "waiting for thread " << i << std::endl;
-				}
-			}
-		}
-
-
-		reset_chunks();
-		for (int i = 0; i < CHUNK_X; i++)
-		{
-			for (int j = 0; j < CHUNK_Y; j++)
-			{
-
-				p_chunks[i][j] = p_oldChunks[i][j];
-
-			}
-		}
-
-
-		thread_done[0] = false;
-
-
 
 		t00 = Time::now();
-		// Wait for threads to finish
 		for (int i = 0; i < NUM_THREADS; i++) {
-			//std::cout << "Waiting for thread " << i << " to join" << std::endl;
 			t01 = Time::now();
 			fsec fs = t01 - t00;
 			double steptime = fs.count();
-			//std::cout << "waiting for thread " << steptime << std::endl;
 			if (steptime > 1)
 			{
-				std::cout << "waiting for thread to join " << i << std::endl;
+				std::cout << "waiting for thread joining " << i << std::endl;
 			}
 			threads[i].join();
+
 		}
-
-
 
 
 		for (auto& p : *objects)
@@ -512,7 +439,7 @@ void createTriangle(std::list<PhysicsObject*>* list, vec2 p, vec2 pt[3], sfCol c
 {
 	PhysicsObject* tri = new Triangle(p, pt, c, h, b, m);
 	list->push_back(tri);
-
+	std::cout << tri->ID << std::endl;
 
 	triangle_count++;
 }
@@ -533,7 +460,7 @@ void createTriangle(std::list<PhysicsObject*>* list, vec2 p, vec2 pt[3], sfCol c
 
 void insert_into_chunk(PhysicsObject* p)
 {
-	std::cout << "539" << std::endl;
+
 	switch (p->type)
 	{
 	case PH_PAR:
@@ -557,58 +484,29 @@ void insert_into_chunk(PhysicsObject* p)
 		int y1 = std::min(p->points[0].y, std::min(p->points[1].y, p->points[2].y));
 		int y2 = std::max(p->points[0].y, std::max(p->points[1].y, p->points[2].y));
 		bool out = false;
-		for (int i = x1 / chunk_width; i <= x2 / chunk_width && i < CHUNK_X; i++) {
-			for (int j = y1 / chunk_height; j <= y2 / chunk_height && j < CHUNK_Y; j++) {
 
-				if (j > CHUNK_Y)
+		for (int i = x1 / chunk_width; i <= x2 / chunk_width && i < CHUNK_X && i >= 0; i++) {
+
+			for (int j = y1 / chunk_height; j <= y2 / chunk_height; j++) {
+
+				if (j >= CHUNK_Y || j < 0)
 				{
 					if (!out) {
 						p_out.push_back(p);
 						out = true;
 					}
-					continue;
 				}
-				std::cout << "572 " << i << " " << j << std::endl;
-				p_chunks[i][j].push_back(p);
-				std::cout << "573" << std::endl;
+				else
+				{
+					p_chunks[i][j].push_back(p);
+				}
+
 			}
 		}
+
 
 		break;
 	}
 
 }
 
-void move_to_chunk(PhysicsObject* p, int ox, int oy)
-{
-
-
-	switch (p->type)
-	{
-	case PH_PAR:
-	{
-		if (ox == -1 || oy == -1) {
-			p_out.remove(p);
-			insert_into_chunk(p);
-			return;
-		}
-
-		p_chunks[ox][oy].remove(p);
-		insert_into_chunk(p);
-	}
-	break;
-	case PH_TRI:
-	{
-		if (ox == -1 || oy == -1) {
-			p_out.remove(p);
-			insert_into_chunk(p);
-			return;
-		}
-
-		p_chunks[ox][oy].remove(p);
-		insert_into_chunk(p);
-	}
-
-	break;
-	}
-}

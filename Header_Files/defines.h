@@ -24,6 +24,7 @@
 # define SCREEN_HEIGHT 600
 # define ANG_MOMENTUM_MULTIPLY 0.00001
 # define FLOOR_MASS std::numeric_limits<float>::max()
+# define INVERSE_FLOOR_MASS std::numeric_limits<float>::min()
 
 
 

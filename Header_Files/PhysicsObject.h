@@ -10,14 +10,14 @@ public:
 	void reset();
 
 	virtual void draw(sf::RenderWindow* window);
-	virtual void physicsStep();
+	virtual void physicsStep(int chunk_id);
 	virtual void collision(const PhysicsObject& p);
 	virtual void collisionUpdatePos();
 
 	// general
 
 	float rotation = 0;
-	float angMomentum = 0;
+	float rotationSpeed = 0;
 	float energy_k = 0;
 	float energy_p = 0;
 	float energy_all = 0;

@@ -47,7 +47,7 @@ void Particle::createDot()
 }
 
 
-void Particle::physicsStep()
+void Particle::physicsStep(int chunk_id)
 {
 	if (!step_calculated)
 	{

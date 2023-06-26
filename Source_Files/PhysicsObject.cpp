@@ -7,7 +7,7 @@ int PhysicsObject::nextID = 0;
 PhysicsObject::PhysicsObject()
 {
 	rotation = 0.0f;
-	angMomentum = 0.0f;
+	rotationSpeed = 0.0f;
 
 	force = vec2(0, 0);
 	moveDir = vec2(0, 0);
@@ -18,7 +18,7 @@ void PhysicsObject::reset()
 {
 	force = vec2(0, 0);
 	step_calculated = false;
-	//interacted_objects.clear();
+	interacted_objects.clear();
 }
 
 void PhysicsObject::addForce(vec2* dir)
@@ -31,7 +31,7 @@ void PhysicsObject::draw(sf::RenderWindow* window)
 	std::cout << "Draw not overridden" << std::endl;
 }
 
-void PhysicsObject::physicsStep()
+void PhysicsObject::physicsStep(int chunk_id)
 {
 	std::cout << "PhysicsStep not overridden" << std::endl;
 }
