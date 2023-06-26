@@ -21,6 +21,7 @@ public:
 private:
 	void createTriangle();
 	void tri_intersect(vec2 collision_normal, vec2 point);
+	void calc_rotation(vec2 collision_normal, vec2 point, vec2 relativePoint);
 	
 
 };

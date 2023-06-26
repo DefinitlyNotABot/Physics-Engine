@@ -19,7 +19,7 @@ Triangle::Triangle(vec2 pos, vec2 pts[3], sfCol col, bool isHollow, float bouncy
 	bouncyness = bouncy;
 	createTriangle();
 
-	rotationSpeed = 0.1;
+	rotationSpeed = 0.0;
 
 	mass = m;
 
@@ -83,22 +83,99 @@ void Triangle::physicsStep(int chunk_id)
 {
 	if (!step_calculated)
 	{
-		step_calculated = true;
 		vec2 oldMoveDir = moveDir;
 		vec2 oldPos = position;
 
-		this->delta = (Time::now() - t0).count();
+		step_calculated = true;
+
+		t1 = Time::now();
+		fsec fs = t1 - t0;
+		float delta = fs.count();
+		this->delta = delta;
+
+		moveDir.y += g * delta;
 
 
-		moveDir += vec2(0, g) * delta;
+		float force_length = glm::length(force);
+		if (force_length > 0)
+		{
+			float a = force_length / mass;
+			moveDir += glm::normalize(force) * a * delta;
+		}
+
+
+		position += moveDir;
+
+
+		updateTriangle();
+
+		int num_floor = 0;
+
+		for (int i = 0; i < 3; i++)
+		{
+			if (on_ground)
+			{
+				float overlap = points[i].y - SCREEN_HEIGHT;
+				position.y -= overlap;
+				moveDir.y = 0;
+				rotationSpeed = 0;
+				updateTriangle();
+			}
+			else if (points[i].y > SCREEN_HEIGHT)
+			{
+
+				float overlap = points[i].y - SCREEN_HEIGHT;
+				position.y -= overlap;
+				moveDir.y *= -bouncyness;
+				updateTriangle();
+
+				calc_rotation(vec2(0, 1), points[i], relativePoints[i]);
+			}
+			if (points[i].x < 0)
+			{
+				float overlap = points[i].x - 0;
+				position.x -= overlap;
+				moveDir.x *= -bouncyness;
+				updateTriangle();
+
+				calc_rotation(vec2(1, 0), points[i], relativePoints[i]);
+			}
+			if (points[i].x > SCREEN_WIDTH)
+			{
+				float overlap = points[i].x - SCREEN_WIDTH;
+				position.x -= overlap;
+				moveDir.x *= -bouncyness;
+				updateTriangle();
+
+				calc_rotation(vec2(-1, 0), points[i], relativePoints[i]);
+			}
+			if (points[i].y > SCREEN_HEIGHT - 1.0f)
+			{
+				num_floor++;
+			}
+			
+		}
+
+		if (glm::abs(moveDir.y) < 0.01f && num_floor == 2)
+		{
+			moveDir.y = 0.0f;
+			position.y = SCREEN_HEIGHT;
+			rotationSpeed = 0;
+			on_ground = true;
+		}
+
+
+
+		center = position;
+
+		updateEnergy();
+
+		moveDirSave = moveDir;
+		positionSave = position;
 
 
 
 
-
-
-
-		
 		t0 = Time::now();
 	}
 
@@ -318,3 +395,43 @@ void Triangle::collisionUpdatePos()
 	moveDir = moveDirSave;
 }
 
+void Triangle::calc_rotation(vec2 collision_normal, vec2 point, vec2 relativePoint)
+{
+	vec2 anti_normal = rotate_vector(collision_normal, PI);
+
+	float ang_anor_move = ang_between_vec(anti_normal, moveDir, ANG_CLOCK_SIGNED);
+	float ang_anor_point = ang_between_vec(anti_normal, relativePoint, ANG_CLOCK_SIGNED);
+
+
+
+	float v_point = (2 * PI * glm::length(relativePoint)) * rotationSpeed;
+	vec2 pointMoveDir;
+	if (rotationSpeed > 0)
+	{
+		pointMoveDir = v_point * glm::normalize(rotate_vector(relativePoint, PI / 2));
+	}
+	else
+	{
+		pointMoveDir = v_point * glm::normalize(rotate_vector(relativePoint, -PI / 2));
+	}
+	pointMoveDir += moveDir;
+
+
+	vec2 impact_vect = -pointMoveDir;
+
+	vec2 x = relativePoint - (glm::dot(relativePoint, impact_vect) / glm::length(impact_vect)) * impact_vect;
+
+	float anti_rotation = glm::length(x) * glm::length(relativePoint) * bouncyness * ANG_MOMENTUM_MULTIPLY;
+
+
+	if (ang_anor_move > ang_anor_point)
+	{
+		rotationSpeed += anti_rotation;
+	}
+	else 
+	{
+		rotationSpeed -= anti_rotation;
+	}
+
+
+}

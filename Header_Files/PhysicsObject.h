@@ -8,11 +8,13 @@ public:
 
 	void addForce(vec2* dir);
 	void reset();
+	void updateEnergy();
 
 	virtual void draw(sf::RenderWindow* window);
 	virtual void physicsStep(int chunk_id);
 	virtual void collision(const PhysicsObject& p);
 	virtual void collisionUpdatePos();
+
 
 	// general
 
@@ -38,6 +40,7 @@ public:
 	static float gravity;
 	bool step_calculated = false;
 
+	bool on_ground = false;
 	
 
 	float speed = 0.0f;

@@ -47,5 +47,12 @@ void PhysicsObject::collisionUpdatePos()
 	std::cout << "collisionUpdatePos not overridden" << std::endl;
 }
 
+void PhysicsObject::updateEnergy()
+{
+	energy_p = mass * g * ((SCREEN_HEIGHT - center.y)/10000); // E potential = m * g * h
+	energy_k = 0.5 * mass * pow(glm::length(moveDir), 2); // E kinetic = 1/2 m * v²
+	energy_all = energy_k + energy_p; 
+}
+
 
 

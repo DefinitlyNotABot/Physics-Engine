@@ -12,7 +12,7 @@
 #define NUM_SUBSTEPS 2
 #define OUTPUT_DEBUG false
 #define INITIAL_PARTICLES 0
-#define INITIAL_TRIANGLES 2
+#define INITIAL_TRIANGLES 1
 
 
 bool thread_done[NUM_THREADS];
@@ -35,7 +35,7 @@ int particle_count = 0;
 int triangle_count = 0;
 
 
-float wind = 0.1;
+float wind = 0.01;
 
 double fatal_error_threashold = 0.25;
 
@@ -70,8 +70,7 @@ void calc_physics(std::list<PhysicsObject*>& objects);
 
 int main()
 {
-
-
+	
 	writeDebugData();
 	//PhysicsObject::gravity = g;
 	sf::ContextSettings settings;
@@ -106,7 +105,7 @@ int main()
 	}
 	for (int i = 1; i <= INITIAL_TRIANGLES; i++)
 	{
-		createTriangle(&objects, vec2(100, i * 100 + 100), new vec2[3]{ vec2(-50, 0) ,vec2(50, 0) ,vec2(0, 75) }, white, true, 0.7, 1, vec2(50, 0));
+		createTriangle(&objects, vec2(100, i * 100 + 100), new vec2[3]{ vec2(-50, 0) ,vec2(50, 0) ,vec2(0, 75) }, white, true, 0.7, 1, vec2(0, 0));
 
 		max_physicsSteps = 0;
 	}
