@@ -73,5 +73,14 @@ public:
 
 	sf::VertexArray triangle;
 
+	// Softbody
+
+	float stiffness;
+	float masses;
+	float dampness;
+	int resolution;
+	int width;
+	int height;
+
 	
 };

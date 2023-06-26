@@ -4,7 +4,7 @@
 #include <thread>
 #include <iostream>
 #include <chrono>
-#include <list>
+
 
 #define CHUNK_X 20
 #define CHUNK_Y 20
@@ -12,7 +12,8 @@
 #define NUM_SUBSTEPS 2
 #define OUTPUT_DEBUG false
 #define INITIAL_PARTICLES 0
-#define INITIAL_TRIANGLES 2
+#define INITIAL_TRIANGLES 0
+#define INITIAL_SOFTBODIES 1
 
 
 bool thread_done[NUM_THREADS];
@@ -63,6 +64,7 @@ void createTriangle(std::list<PhysicsObject*>* list, vec2 p, vec2 pt[3], sfCol c
 void createParticle(std::list<PhysicsObject*>* list, vec2 p, int r, sfCol c, bool f, double b, double m);
 void createTriangle(std::list<PhysicsObject*>* list, vec2 p, vec2 pt[3], sfCol c, bool h, float b, float m);
 void calc_physics(std::list<PhysicsObject*>& objects);
+void createSoftbody(std::list<PhysicsObject*>* list, vec2 pos, sfCol col, float stiffness, float masses, int w, int h, int resolution, float damp);
 
 
 
@@ -105,7 +107,13 @@ int main()
 	}
 	for (int i = 1; i <= INITIAL_TRIANGLES; i++)
 	{
-		createTriangle(&objects, vec2(100, i * 100 + 100), new vec2[3]{ vec2(-50, 0) ,vec2(50, 0) ,vec2(0, 100) }, sfCol(255,255,(i-1)*255), full, 0.7, 1, vec2(0, 0));
+		createTriangle(&objects, vec2(i * 100 + 150, i * 100 + 100), new vec2[3]{ vec2(-50, 0) ,vec2(50, 0) ,vec2(0, 100) }, sfCol(255,255,(i-1)*255), full, 0.7, 1, vec2(0, 0));
+		full = !full;
+		max_physicsSteps = 0;
+	}
+	for (int i = 1; i <= INITIAL_SOFTBODIES; i++)
+	{
+		createSoftbody(&objects, vec2(100, i * 100 + 100), white, 0.5f, 2, 200, 200, 10, 0.8);
 		full = !full;
 		max_physicsSteps = 0;
 	}
@@ -506,5 +514,12 @@ void insert_into_chunk(PhysicsObject* p)
 		break;
 	}
 
+}
+
+void createSoftbody(std::list<PhysicsObject*>* list, vec2 pos, sfCol col, float stiffness, float masses, int w, int h, int resolution, float damp)
+{
+	PhysicsObject* sof = new Softbody(pos, col, stiffness, masses, w, h, resolution, damp);
+	list->push_back(sof);
+	triangle_count++;
 }
 

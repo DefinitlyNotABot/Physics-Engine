@@ -30,6 +30,15 @@
     <ClCompile Include="Source_Files\custom_functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source_Files\Softbody.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source_Files\spring.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source_Files\masspoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header_Files\defines.h">
@@ -51,6 +60,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header_Files\custom_functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header_Files\Softbody.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header_Files\masspoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header_Files\spring.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
