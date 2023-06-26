@@ -10,7 +10,7 @@ public:
 	void draw(sf::RenderWindow* window) override;
 	void physicsStep(int chunk_id) override;
 
-	void collision(const PhysicsObject& p) override;
+	void collision(PhysicsObject& p) override;
 	void collisionUpdatePos() override;
 
 private:

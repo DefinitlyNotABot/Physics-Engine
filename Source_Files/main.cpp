@@ -12,7 +12,7 @@
 #define NUM_SUBSTEPS 2
 #define OUTPUT_DEBUG false
 #define INITIAL_PARTICLES 0
-#define INITIAL_TRIANGLES 1
+#define INITIAL_TRIANGLES 2
 
 
 bool thread_done[NUM_THREADS];
@@ -74,7 +74,7 @@ int main()
 	writeDebugData();
 	//PhysicsObject::gravity = g;
 	sf::ContextSettings settings;
-	settings.antialiasingLevel = 2;
+	settings.antialiasingLevel = 8;
 	// Initialize Window
 	sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "2D Physics Engine in C++", sf::Style::Titlebar | sf::Style::Close, settings);
 
@@ -105,8 +105,8 @@ int main()
 	}
 	for (int i = 1; i <= INITIAL_TRIANGLES; i++)
 	{
-		createTriangle(&objects, vec2(100, i * 100 + 100), new vec2[3]{ vec2(-50, 0) ,vec2(50, 0) ,vec2(0, 75) }, white, true, 0.7, 1, vec2(0, 0));
-
+		createTriangle(&objects, vec2(100, i * 100 + 100), new vec2[3]{ vec2(-50, 0) ,vec2(50, 0) ,vec2(0, 100) }, sfCol(255,255,(i-1)*255), full, 0.7, 1, vec2(0, 0));
+		full = !full;
 		max_physicsSteps = 0;
 	}
 
@@ -140,6 +140,7 @@ int main()
 
 
 		drawScreen(&window, &objects);
+		
 
 	}
 
@@ -191,8 +192,6 @@ void physicsSubStepC(int xyid[])
 						{
 							if (q != nullptr && p->ID != q->ID)
 							{
-								std::cout << "ho" << std::endl;
-
 								p->collision(*q);
 							}
 						}

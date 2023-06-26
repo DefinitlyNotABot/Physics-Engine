@@ -99,7 +99,7 @@ void Particle::physicsStep(int chunk_id)
 
 }
 
-void Particle::collision(const PhysicsObject& p)
+void Particle::collision(PhysicsObject& p)
 {
 	switch (p.type) {
 	case PH_PAR:

@@ -12,7 +12,7 @@ public:
 
 	virtual void draw(sf::RenderWindow* window);
 	virtual void physicsStep(int chunk_id);
-	virtual void collision(const PhysicsObject& p);
+	virtual void collision(PhysicsObject& p);
 	virtual void collisionUpdatePos();
 
 

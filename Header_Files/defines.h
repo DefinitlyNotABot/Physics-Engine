@@ -12,6 +12,7 @@
 #include <chrono>
 #include <windows.h>
 #include <thread>
+#include <mutex>
 
 
 // define constants
@@ -22,9 +23,11 @@
 
 # define SCREEN_WIDTH 800
 # define SCREEN_HEIGHT 600
-# define ANG_MOMENTUM_MULTIPLY 0.001
+# define ANG_MOMENTUM_MULTIPLY 0.01
 # define FLOOR_MASS std::numeric_limits<float>::max()
 # define INVERSE_FLOOR_MASS std::numeric_limits<float>::min()
+# define DEBUG_SINGLESTEP true
+# define DEBUG_SINGLESTEP_DELTATIME 0.000000001
 
 
 
@@ -80,3 +83,15 @@ float ang_between_vec(vec2 a, vec2 b, int type);
 float cross_2D(vec2 a, vec2 b);
 bool PointInTriangle(vec2 pt, vec2 v1, vec2 v2, vec2 v3);
 vec2 calculateIntersection(const vec2& p1, const vec2& p2, const vec2& p3, const vec2& p4);
+bool checkForNaN(const char* varName, float value);
+bool doIntersect(vec2 p1, vec2 q1, vec2 p2, vec2 q2);
+
+
+
+
+
+
+
+
+
+

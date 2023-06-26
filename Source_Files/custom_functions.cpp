@@ -84,3 +84,53 @@ vec2 calculateIntersection(const vec2& p1, const vec2& p2, const vec2& p3, const
 
 	return vec2(intersectionX, intersectionY);
 }
+
+
+
+bool checkForNaN(const char* varName, float value)
+{
+	if (std::isnan(value) || std::isnan(-value))
+	{
+		std::cout << "NaN detected in variable: " << varName << std::endl;
+		return true;
+	}
+	return false;
+}
+
+int orientation(vec2 p, vec2 q, vec2 r) {
+	int val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
+	if (val == 0)
+		return 0;  // collinear
+	return (val > 0) ? 1 : 2;  // clockwise or counterclockwise
+}
+
+// Function to check if two line segments intersect
+bool doIntersect(vec2 p1, vec2 q1, vec2 p2, vec2 q2) {
+	int o1 = orientation(p1, q1, p2);
+	int o2 = orientation(p1, q1, q2);
+	int o3 = orientation(p2, q2, p1);
+	int o4 = orientation(p2, q2, q1);
+
+	// General case
+	if (o1 != o2 && o3 != o4)
+		return true;
+
+	// Special Cases
+	// p1, q1, and p2 are collinear and p2 lies on segment p1q1
+	if (o1 == 0 && orientation(p1, p2, q1) == 0)
+		return true;
+
+	// p1, q1, and q2 are collinear and q2 lies on segment p1q1
+	if (o2 == 0 && orientation(p1, q2, q1) == 0)
+		return true;
+
+	// p2, q2, and p1 are collinear and p1 lies on segment p2q2
+	if (o3 == 0 && orientation(p2, p1, q2) == 0)
+		return true;
+
+	// p2, q2, and q1 are collinear and q1 lies on segment p2q2
+	if (o4 == 0 && orientation(p2, q1, q2) == 0)
+		return true;
+
+	return false;  // No intersection
+}

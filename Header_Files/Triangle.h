@@ -10,7 +10,7 @@ public:
 	void draw(sf::RenderWindow* window) override;
 	void physicsStep(int chunk_id) override;
 
-	void collision(const PhysicsObject& p) override;
+	void collision(PhysicsObject& p) override;
 	void collisionUpdatePos() override;
 	void updateTriangle();
 
@@ -20,8 +20,9 @@ public:
 
 private:
 	void createTriangle();
-	void tri_intersect(vec2 collision_normal, vec2 point);
 	void calc_rotation(vec2 collision_normal, vec2 point, vec2 relativePoint);
-	
+	void calc_rotation_intersect(vec2 point, vec2 relativePoint, PhysicsObject& p1, PhysicsObject& p2);
+	void check_for_nan_vals();
+	void floor_check();
 
 };

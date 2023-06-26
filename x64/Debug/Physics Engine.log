@@ -1,28 +1,26 @@
 ﻿  Triangle.cpp
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(51,25): warning C4244: '+=': conversion from 'T' to 'int', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(57,25): warning C4244: '+=': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(52,25): warning C4244: '+=': conversion from 'T' to 'int', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(58,25): warning C4244: '+=': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(212,81): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(213,99): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(215,49): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(221,81): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(222,99): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(224,49): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(230,81): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(231,99): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(233,49): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(260,90): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(263,42): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(400,53): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(407,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(411,75): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(415,76): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(424,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(117,12): warning C4305: '=': truncation from 'double' to 'float'
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(266,53): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(273,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(277,75): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(281,76): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(290,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(318,84): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(328,84): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(338,84): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(354,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(360,75): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(364,76): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(373,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\Triangle.cpp(400,44): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
   Physics Engine.vcxproj -> D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\x64\Debug\Physics Engine.exe

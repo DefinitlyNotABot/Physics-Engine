@@ -37,7 +37,7 @@ void PhysicsObject::physicsStep(int chunk_id)
 }
 
 
-void PhysicsObject::collision(const PhysicsObject& p)
+void PhysicsObject::collision(PhysicsObject& p)
 {
 	std::cout << "Collision not overridden" << std::endl;
 }
