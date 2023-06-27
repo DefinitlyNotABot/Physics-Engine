@@ -1,11 +1,13 @@
 #pragma once
 #include "../Header_Files/defines.h"
-#include "../Header_Files/masspoint.h"
+#include "../Header_Files/classes.h"
+#include "../Header_Files/spring.h"
 
 class Spring
 {
 public:
 	Spring(Masspoint* a, Masspoint* b, float stiffness, float damping);
+	Spring();
 	void draw(sf::RenderWindow* window);
 
 	void physicsStep();

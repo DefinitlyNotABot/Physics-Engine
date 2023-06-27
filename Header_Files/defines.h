@@ -23,7 +23,7 @@
 
 # define SCREEN_WIDTH 800
 # define SCREEN_HEIGHT 600
-# define ANG_MOMENTUM_MULTIPLY 0.1
+# define ANG_MOMENTUM_MULTIPLY 0.0001
 # define FLOOR_MASS std::numeric_limits<float>::max()
 # define INVERSE_FLOOR_MASS std::numeric_limits<float>::min()
 # define DEBUG_SINGLESTEP true
@@ -75,6 +75,7 @@ enum physics_object_types
 
 class PhysicsObject;
 class Physics;
+class Spring;
 
 // define functions
 
@@ -86,6 +87,7 @@ bool PointInTriangle(vec2 pt, vec2 v1, vec2 v2, vec2 v3);
 vec2 calculateIntersection(const vec2& p1, const vec2& p2, const vec2& p3, const vec2& p4);
 bool checkForNaN(const char* varName, float value);
 bool doIntersect(vec2 p1, vec2 q1, vec2 p2, vec2 q2);
+float normalDistanceToLine(vec2 P, vec2 L1, vec2 L2);
 
 
 

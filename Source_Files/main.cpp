@@ -12,7 +12,7 @@
 #define NUM_SUBSTEPS 2
 #define OUTPUT_DEBUG false
 #define INITIAL_PARTICLES 0
-#define INITIAL_TRIANGLES 0
+#define INITIAL_TRIANGLES 1
 #define INITIAL_SOFTBODIES 1
 
 
@@ -36,7 +36,7 @@ int particle_count = 0;
 int triangle_count = 0;
 
 
-float wind = 0.01;
+float wind = 0.0;
 
 double fatal_error_threashold = 0.25;
 
@@ -72,7 +72,7 @@ void createSoftbody(std::list<PhysicsObject*>* list, vec2 pos, sfCol col, float 
 
 int main()
 {
-	
+
 	writeDebugData();
 	//PhysicsObject::gravity = g;
 	sf::ContextSettings settings;
@@ -107,7 +107,7 @@ int main()
 	}
 	for (int i = 1; i <= INITIAL_TRIANGLES; i++)
 	{
-		createTriangle(&objects, vec2(i * 100 + 150, i * 100 + 100), new vec2[3]{ vec2(-50, 0) ,vec2(50, 0) ,vec2(0, 100) }, sfCol(255,255,(i-1)*255), full, 0.7, 1, vec2(0, 0));
+		createTriangle(&objects, vec2(i * 100 + 150, 500), new vec2[3]{ vec2(-50, 0) ,vec2(50, 0) ,vec2(0, 100) }, sfCol(255, 255, (i - 1) * 255), full, 0.7, 1, vec2(0, 0));
 		full = !full;
 		max_physicsSteps = 0;
 	}
@@ -148,7 +148,7 @@ int main()
 
 
 		drawScreen(&window, &objects);
-		
+
 
 	}
 
@@ -484,6 +484,7 @@ void insert_into_chunk(PhysicsObject* p)
 	}
 	break;
 	case PH_TRI:
+	{
 		int x1 = std::min(p->points[0].x, std::min(p->points[1].x, p->points[2].x));
 		int x2 = std::max(p->points[0].x, std::max(p->points[1].x, p->points[2].x));
 
@@ -494,6 +495,32 @@ void insert_into_chunk(PhysicsObject* p)
 		for (int i = x1 / chunk_width; i <= x2 / chunk_width && i < CHUNK_X && i >= 0; i++) {
 
 			for (int j = y1 / chunk_height; j <= y2 / chunk_height; j++) {
+
+				if (j >= CHUNK_Y || j < 0)
+				{
+					if (!out) {
+						p_out.push_back(p);
+						out = true;
+					}
+				}
+				else
+				{
+					p_chunks[i][j].push_back(p);
+				}
+
+			}
+		}
+	}
+
+
+
+	break;
+	case PH_SOF:
+		bool out = false;
+
+		for (int i = p->left / chunk_width; i <= p->right / chunk_width && i < CHUNK_X && i >= 0; i++) {
+
+			for (int j = p->up / chunk_height; j <= p->down / chunk_height; j++) {
 
 				if (j >= CHUNK_Y || j < 0)
 				{

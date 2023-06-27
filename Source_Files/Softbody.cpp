@@ -62,7 +62,7 @@ void Softbody::createSoftbody()
 		{
 
 
-			Masspoint* m = new Masspoint(vec2(position.x + dis_w * i, position.y + dis_h * j), masses, 2);
+			Masspoint* m = new Masspoint(vec2(position.x + dis_w * i, position.y + dis_h * j), masses, 4);
 			masspoints.push_back(m);
 		}
 	}
@@ -118,7 +118,10 @@ void Softbody::physicsStep(int chunk_id)
 			delta = DEBUG_SINGLESTEP_DELTATIME;
 		}
 
-
+		int maxX = std::numeric_limits<int>::min();
+		int minX = std::numeric_limits<int>::max();
+		int maxY = std::numeric_limits<int>::min();
+		int minY = std::numeric_limits<int>::max();
 
 		for (auto& p : masspoints)
 		{
@@ -132,7 +135,28 @@ void Softbody::physicsStep(int chunk_id)
 		for (auto& p : masspoints)
 		{
 			p->physicsStep(delta);
+			if (p->position.x > maxX)
+			{
+				maxX = p->position.x;
+			}
+			if (p->position.x < minX)
+			{
+				minX = p->position.x;
+			}
+			if (p->position.y > maxY)
+			{
+				maxY = p->position.y;
+			}
+			if (p->position.y < minY)
+			{
+				minY = p->position.y;
+			}
 		}
+
+		up = minY;
+		down = maxY;
+		left = minX;
+		right = maxX;
 
 
 
@@ -147,12 +171,20 @@ void Softbody::collision(PhysicsObject& p)
 	switch (p.type)
 	{
 	case PH_PAR:
-		break;
-	case PH_TRI:
 	{
 
-
-
+	}
+	break;
+	case PH_TRI:
+	{
+		for (auto& q : masspoints)
+		{
+			q->collision(p);
+		}
+	}
+	break;
+	case PH_SOF:
+	{
 
 	}
 	break;

@@ -1,5 +1,7 @@
 #pragma once
 #include "../Header_Files/defines.h"
+#include "../Header_Files/classes.h"
+#include "../Header_Files/masspoint.h"
 
 class Masspoint
 {
@@ -11,6 +13,7 @@ public:
 	void addForce(vec2 f);
 	void physicsStep(float delta);
 	void reset();
+	void collision(PhysicsObject& p);
 
 	vec2 position;
 	vec2 velocity;

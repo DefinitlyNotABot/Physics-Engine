@@ -20,6 +20,7 @@ Spring::Spring(Masspoint* a, Masspoint* b, float stiff, float damp)
 	nextID++;
 }
 
+Spring::Spring(){}
 void Spring::draw(sf::RenderWindow* window)
 {
 	line[0].position = vec2_2_sfVec2(&A->position);
@@ -53,8 +54,9 @@ void Spring::physicsStep()
 		
 	}
 	else{
-		A->position += prev_ab * A->radius;
-		B->position -= prev_ab * B->radius;
+		A->position -= prev_ab * A->radius;
+		B->position += prev_ab * B->radius;
 	}
-	
 }
+
+

@@ -1,7 +1,6 @@
 #pragma once
 #include "../Header_Files/defines.h"
 #include "../Header_Files/classes.h"
-
 #include "../Header_Files/masspoint.h"
 #include "../Header_Files/spring.h"
 

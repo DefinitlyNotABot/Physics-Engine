@@ -134,3 +134,17 @@ bool doIntersect(vec2 p1, vec2 q1, vec2 p2, vec2 q2) {
 
 	return false;  // No intersection
 }
+
+
+float normalDistanceToLine(vec2 P, vec2 L1, vec2 L2)
+{
+	float dividend = abs((L2.x - L1.x) * (L1.y - P.y) - (L1.x - P.x) * (L2.y - L1.y));
+	float divisor = sqrt(pow(L2.x - L1.x, 2) + pow(L2.y - L1.y, 2));
+
+	if (divisor != 0.f) 
+	{
+		return dividend / divisor;
+	}
+	return sqrt(pow(P.x - L1.x, 2) + pow(P.y - L1.y, 2));
+}
+

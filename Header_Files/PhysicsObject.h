@@ -82,5 +82,10 @@ public:
 	int width;
 	int height;
 
+	int up;
+	int down;
+	int left;
+	int right;
+
 	
 };
