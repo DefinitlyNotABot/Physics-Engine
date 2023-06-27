@@ -10,11 +10,10 @@
 #define CHUNK_Y 20
 #define NUM_THREADS 6
 #define NUM_SUBSTEPS 2
-#define OUTPUT_DEBUG false
 #define INITIAL_PARTICLES 0
 #define INITIAL_TRIANGLES 0
 #define INITIAL_SOFTBODIES 0
-#define INITIAL_CLOTH 1
+#define INITIAL_CLOTH 0
 
 
 bool thread_done[NUM_THREADS];
@@ -44,6 +43,8 @@ double fatal_error_threashold = 0.25;
 vec2 v_vec = vec2(wind, 0);
 vec2 g_vec = vec2(0, g);
 vec2* v_vec_ptr = &v_vec;
+
+sf::VertexArray chunk_borders[CHUNK_X * CHUNK_Y];
 
 std::list<PhysicsObject*> thread_objects[NUM_THREADS];
 
@@ -135,8 +136,32 @@ int main()
 
 	int x_spawn = 50;
 
+	if (SHOW_CHUNK_BORDERS)
+	{
+		int delta_x = SCREEN_WIDTH / CHUNK_X;
+		int delta_y = SCREEN_HEIGHT / CHUNK_Y;
+		int ind = 0;
+		for (int i = 0; i < CHUNK_X; i++)
+		{
+			chunk_borders[ind] = sf::VertexArray(sf::LinesStrip, 2);
 
+			chunk_borders[ind][0].position = sf::Vector2f(i * delta_x, 0);
+			chunk_borders[ind][1].position = sf::Vector2f(i * delta_x, SCREEN_HEIGHT);
 
+			ind++;
+		}
+		for (int j = 0; j < CHUNK_Y; j++)
+		{
+			chunk_borders[ind] = sf::VertexArray(sf::LinesStrip, 2);
+
+			chunk_borders[ind][0].position = sf::Vector2f(0, j * delta_y);
+			chunk_borders[ind][1].position = sf::Vector2f(SCREEN_WIDTH, j * delta_y);
+
+			ind++;
+
+		}
+	}
+	
 
 
 	while (window.isOpen())
@@ -266,6 +291,15 @@ void drawScreen(sf::RenderWindow* window, std::list<PhysicsObject*>* particles)
 	{
 
 		p->draw(window);
+	}
+
+
+	if (SHOW_CHUNK_BORDERS)
+	{
+		for (int i = 0; i < CHUNK_X * CHUNK_Y; i++)
+		{
+			window->draw(chunk_borders[i]);
+		}
 	}
 
 

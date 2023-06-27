@@ -26,8 +26,14 @@
 # define ANG_MOMENTUM_MULTIPLY 0.00001
 # define FLOOR_MASS std::numeric_limits<float>::max()
 # define INVERSE_FLOOR_MASS std::numeric_limits<float>::min()
+
+
+// DEBUG DEFINES
+
 # define DEBUG_SINGLESTEP true
 # define DEBUG_SINGLESTEP_DELTATIME 0.001
+# define OUTPUT_DEBUG false
+# define SHOW_CHUNK_BORDERS true
 
 
 

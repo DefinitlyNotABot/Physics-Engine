@@ -1,36 +1,56 @@
 ﻿  main.cpp
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(40,12): warning C4305: 'initializing': truncation from 'double' to 'float'
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(112,148): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(446,51): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(446,48): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(463,51): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(463,48): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(482,9): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(39,12): warning C4305: 'initializing': truncation from 'double' to 'float'
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(113,148): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(148,52): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(483,9): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(149,52): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(496,10): warning C4244: 'initializing': conversion from 'const _Ty' to 'int', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(157,55): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(158,66): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(480,51): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(480,48): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(497,51): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(497,48): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(516,9): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(517,9): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(530,10): warning C4244: 'initializing': conversion from 'const _Ty' to 'int', possible loss of data
           with
           [
               _Ty=float
           ]
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(497,10): warning C4244: 'initializing': conversion from 'const _Ty' to 'int', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(531,10): warning C4244: 'initializing': conversion from 'const _Ty' to 'int', possible loss of data
           with
           [
               _Ty=float
           ]
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(499,10): warning C4244: 'initializing': conversion from 'const _Ty' to 'int', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(533,10): warning C4244: 'initializing': conversion from 'const _Ty' to 'int', possible loss of data
           with
           [
               _Ty=float
           ]
-D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(500,10): warning C4244: 'initializing': conversion from 'const _Ty' to 'int', possible loss of data
+D:\Dokumente\Projekte\__CT_ABI__\Physics Engine\Physics Engine\Source_Files\main.cpp(534,10): warning C4244: 'initializing': conversion from 'const _Ty' to 'int', possible loss of data
           with
           [
               _Ty=float
