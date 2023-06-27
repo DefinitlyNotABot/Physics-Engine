@@ -4,7 +4,7 @@
 #include "../Header_Files/Softbody.h"
 
 
-Softbody::Softbody(vec2 pos, sfCol col, float stiffness, float mass, int w, int h, int res, float damp)
+Softbody::Softbody(vec2 pos, sfCol col, float stiff, float mass, int w, int h, int res, float damp)
 {
 
 
@@ -16,14 +16,14 @@ Softbody::Softbody(vec2 pos, sfCol col, float stiffness, float mass, int w, int 
 	width = w;
 	height = h;
 	dampness = damp;
+	stiffness = stiff;
 
-	createSoftbody();
 
 
 	rotationSpeed = 0.0;
 
 	masses = mass;
-
+	std::cout << "mass " << masses << std::endl;
 	moveDir = vec2(0, 0);
 
 	ID = nextID;
@@ -32,6 +32,8 @@ Softbody::Softbody(vec2 pos, sfCol col, float stiffness, float mass, int w, int 
 	t0 = Time::now();
 	step_calculated = false;
 	type = PH_SOF;
+
+	createSoftbody();
 }
 
 void Softbody::draw(sf::RenderWindow* window)
@@ -54,11 +56,13 @@ void Softbody::createSoftbody()
 	float dis_w = width / resolution;
 	float dis_h = height / resolution;
 
-	for (int i = 0; i < resolution; i++)
+	for (int j = 0; j < resolution; j++)
 	{
-		for (int j = 0; j < resolution; j++)
+		for (int i = 0; i < resolution; i++)
 		{
-			Masspoint* m = new Masspoint(vec2(position.x + dis_w * i, position.y + dis_h * j), masses, 1);
+
+
+			Masspoint* m = new Masspoint(vec2(position.x + dis_w * i, position.y + dis_h * j), masses, 2);
 			masspoints.push_back(m);
 		}
 	}
@@ -70,9 +74,9 @@ void Softbody::createSoftbody()
 	int ind = 0;
 	int x = 0;
 	int y = 0;
-	
+
 	for (itX = masspoints.begin(); itX != masspoints.end(); ++itX) {
-		
+
 		x = ind % resolution;
 		y = ind / resolution;
 
@@ -80,13 +84,12 @@ void Softbody::createSoftbody()
 		{
 			for (int j = 0; j < 2; j++)
 			{
-				
+
 				if (x + i >= 0 && x + i < resolution && y + j >= 0 && y + j < resolution && (i != 0 || j != 0) && (i != -1 || j != 0))
 				{
 					itY = itX;
 					int z = (y + j) * resolution + (x + i);
 					int rel = z - ind;
-					std::cout << "ind " << ind << " rel " << rel << " yj " << (y + j) << " xi " << x + i << " z " << z << std::endl;
 					std::advance(itY, rel);
 					Spring* spr = new Spring(*itX, *itY, stiffness, dampness);
 					springs.push_back(spr);
@@ -105,11 +108,31 @@ void Softbody::physicsStep(int chunk_id)
 {
 	if (!step_calculated)
 	{
+		t1 = Time::now();
+		fsec fs = t1 - t0;
+		float delta = fs.count();
+
+
+		if (DEBUG_SINGLESTEP)
+		{
+			delta = DEBUG_SINGLESTEP_DELTATIME;
+		}
 
 
 
+		for (auto& p : masspoints)
+		{
+			p->reset();
+		}
 
-
+		for (auto& p : springs)
+		{
+			p->physicsStep();
+		}
+		for (auto& p : masspoints)
+		{
+			p->physicsStep(delta);
+		}
 
 
 
@@ -139,7 +162,6 @@ void Softbody::collision(PhysicsObject& p)
 
 void Softbody::collisionUpdatePos()
 {
-	position = positionSave;
-	moveDir = moveDirSave;
+
 }
 

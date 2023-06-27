@@ -4,6 +4,8 @@
 #include "../Header_Files/Particle.h"
 sfCol bgCol2 = sfCol(0, 0, 0);
 
+
+
 Particle::Particle(vec2 pos, double rad, sfCol col, bool isHollow, float bouncy, float m)
 {
 
@@ -55,6 +57,10 @@ void Particle::physicsStep(int chunk_id)
 		t1 = Time::now();
 		fsec fs = t1 - t0;
 		float delta = fs.count();
+		if (DEBUG_SINGLESTEP)
+		{
+			delta = DEBUG_SINGLESTEP_DELTATIME;
+		}
 		this->delta = delta;
 
 		// Calculate Gravity

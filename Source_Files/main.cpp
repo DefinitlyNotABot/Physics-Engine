@@ -113,7 +113,7 @@ int main()
 	}
 	for (int i = 1; i <= INITIAL_SOFTBODIES; i++)
 	{
-		createSoftbody(&objects, vec2(100, i * 100 + 100), white, 0.5f, 2, 200, 200, 10, 0.8);
+		createSoftbody(&objects, vec2(100, i * 100 + 100), white, 10.0f, 0.5f, 200, 200, 10, 5);
 		full = !full;
 		max_physicsSteps = 0;
 	}
@@ -299,10 +299,10 @@ void multithread_physics(int substeps, std::list<PhysicsObject*>* objects)
 {
 	std::chrono::steady_clock::time_point t0;
 	std::chrono::steady_clock::time_point t1;
-	std::chrono::steady_clock::time_point t00;
 	std::chrono::steady_clock::time_point t01;
 	t0 = Time::now();
 
+	std::chrono::steady_clock::time_point t00;
 	for (int i = 0; i < NUM_SUBSTEPS; i++)
 	{
 		stepcount++;

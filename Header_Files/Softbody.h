@@ -15,11 +15,13 @@ public:
 
 	void collision(PhysicsObject& p) override;
 	void collisionUpdatePos() override;
-	void updateTriangle();
 
 
 	std::list<Masspoint*> masspoints;
 	std::list<Spring*> springs;
+
+	std::chrono::steady_clock::time_point t0;
+	std::chrono::steady_clock::time_point t1;
 	
 
 private:
