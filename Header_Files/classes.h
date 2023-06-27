@@ -6,3 +6,4 @@
 #include "../Header_Files/Softbody.h"
 #include "../Header_Files/masspoint.h"
 #include "../Header_Files/spring.h"
+#include "../Header_Files/Cloth.h"

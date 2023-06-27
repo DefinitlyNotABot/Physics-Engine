@@ -120,36 +120,21 @@ void Triangle::physicsStep(int chunk_id)
 
 		this->delta = delta;
 
-		moveDir.y += g * delta;
+		force += vec2(0, g);
 
 
-		float force_length = glm::length(force);
-		if (force_length > 0)
-		{
-			float a = force_length / mass;
-			moveDir += glm::normalize(force) * a * delta;
-		}
-
-
-
-		position += moveDir;
+		moveDir += (delta * force) / mass;
+		position += delta * moveDir;
 
 
 		updateTriangle();
 
 		floor_check();
 
-		check_for_nan_vals();
-
 		center = position;
-
-		updateEnergy();
 
 		moveDirSave = moveDir;
 		positionSave = position;
-
-
-
 
 		t0 = Time::now();
 	}

@@ -38,28 +38,26 @@ void Masspoint::physicsStep(float delta)
 
 {
 
+		force += vec2(0, g);
 
-	force += vec2(0, g);
+		velocity += (delta * force) / mass;
+		position += delta * velocity;
 
-	velocity += (delta * force) / mass;
-	position += delta * velocity;
-
-	if (position.y > SCREEN_HEIGHT - 2 * radius)
-	{
-		position.y = SCREEN_HEIGHT - 2 * radius;
-		velocity.y *= -1;
-	}
-	if (position.x > SCREEN_WIDTH - 2 * radius)
-	{
-		position.x = SCREEN_WIDTH - 2 * radius;
-		velocity.x *= -1;
-	}
-	if (position.x < 2 * radius)
-	{
-		position.x = 2 * radius;
-		velocity.x *= -1;
-	}
-
+		if (position.y > SCREEN_HEIGHT - 2 * radius)
+		{
+			position.y = SCREEN_HEIGHT - 2 * radius;
+			velocity.y *= -1;
+		}
+		if (position.x > SCREEN_WIDTH - 2 * radius)
+		{
+			position.x = SCREEN_WIDTH - 2 * radius;
+			velocity.x *= -1;
+		}
+		if (position.x < 2 * radius)
+		{
+			position.x = 2 * radius;
+			velocity.x *= -1;
+		}
 
 }
 
@@ -118,6 +116,8 @@ void Masspoint::collision(PhysicsObject& p)
 			position -= normal * minD;
 
 			velocity = velocity - 2 * glm::dot(velocity, normal) * normal;
+			p.position += normal * minD;
+			p.on_ground = false;
 
 		}
 

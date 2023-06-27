@@ -64,18 +64,13 @@ void Particle::physicsStep(int chunk_id)
 		this->delta = delta;
 
 		// Calculate Gravity
-		moveDir.y += g * delta;
-		// ~Calculate Gravity
+		force += vec2(0, g);
 
-		// Calculate Forces
-		float forceLength = glm::length(force);
-		if (forceLength > 0)
-		{
-			float a = forceLength / mass;
-			moveDir += glm::normalize(force) * a * delta;
-		}
 
-		position += moveDir;
+		moveDir += (delta * force) / mass;
+		position += delta * moveDir;
+
+
 		speed = glm::length(moveDir);
 
 		center = position + vec2(radius, radius);

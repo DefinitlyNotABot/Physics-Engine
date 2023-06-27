@@ -12,8 +12,9 @@
 #define NUM_SUBSTEPS 2
 #define OUTPUT_DEBUG false
 #define INITIAL_PARTICLES 0
-#define INITIAL_TRIANGLES 1
-#define INITIAL_SOFTBODIES 1
+#define INITIAL_TRIANGLES 0
+#define INITIAL_SOFTBODIES 0
+#define INITIAL_CLOTH 1
 
 
 bool thread_done[NUM_THREADS];
@@ -36,7 +37,7 @@ int particle_count = 0;
 int triangle_count = 0;
 
 
-float wind = 0.0;
+float wind = 0.01;
 
 double fatal_error_threashold = 0.25;
 
@@ -65,6 +66,7 @@ void createParticle(std::list<PhysicsObject*>* list, vec2 p, int r, sfCol c, boo
 void createTriangle(std::list<PhysicsObject*>* list, vec2 p, vec2 pt[3], sfCol c, bool h, float b, float m);
 void calc_physics(std::list<PhysicsObject*>& objects);
 void createSoftbody(std::list<PhysicsObject*>* list, vec2 pos, sfCol col, float stiffness, float masses, int w, int h, int resolution, float damp);
+void createCloth(std::list<PhysicsObject*>* list, vec2 pos, sfCol col, float stiffness, float masses, int w, int h, int resolution, float damp);
 
 
 
@@ -113,7 +115,13 @@ int main()
 	}
 	for (int i = 1; i <= INITIAL_SOFTBODIES; i++)
 	{
-		createSoftbody(&objects, vec2(100, i * 100 + 100), white, 10.0f, 0.5f, 200, 200, 10, 5);
+		createSoftbody(&objects, vec2(i * 250, 50), white, 40, 0.5f, 200, 200, 10, 1);
+		full = !full;
+		max_physicsSteps = 0;
+	}
+	for (int i = 1; i <= INITIAL_CLOTH; i++)
+	{
+		createCloth(&objects, vec2(100, i * 100 + 100), white, 100.0f, 0.5f, 200, 200, 10, 100);
 		full = !full;
 		max_physicsSteps = 0;
 	}
@@ -546,6 +554,13 @@ void insert_into_chunk(PhysicsObject* p)
 void createSoftbody(std::list<PhysicsObject*>* list, vec2 pos, sfCol col, float stiffness, float masses, int w, int h, int resolution, float damp)
 {
 	PhysicsObject* sof = new Softbody(pos, col, stiffness, masses, w, h, resolution, damp);
+	list->push_back(sof);
+	triangle_count++;
+}
+
+void createCloth(std::list<PhysicsObject*>* list, vec2 pos, sfCol col, float stiffness, float masses, int w, int h, int resolution, float damp)
+{
+	PhysicsObject* sof = new Cloth(pos, col, stiffness, masses, w, h, resolution, damp);
 	list->push_back(sof);
 	triangle_count++;
 }

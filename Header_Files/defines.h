@@ -23,7 +23,7 @@
 
 # define SCREEN_WIDTH 800
 # define SCREEN_HEIGHT 600
-# define ANG_MOMENTUM_MULTIPLY 0.0001
+# define ANG_MOMENTUM_MULTIPLY 0.00001
 # define FLOOR_MASS std::numeric_limits<float>::max()
 # define INVERSE_FLOOR_MASS std::numeric_limits<float>::min()
 # define DEBUG_SINGLESTEP true
@@ -68,7 +68,8 @@ enum physics_object_types
 	PH_OBJ,
 	PH_PAR,
 	PH_TRI,
-	PH_SOF
+	PH_SOF,
+	PH_CLO
 };
 
 // define classes
