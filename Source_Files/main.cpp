@@ -11,8 +11,8 @@
 #define NUM_THREADS 6
 #define NUM_SUBSTEPS 2
 #define INITIAL_PARTICLES 0
-#define INITIAL_TRIANGLES 0
-#define INITIAL_SOFTBODIES 0
+#define INITIAL_TRIANGLES 1
+#define INITIAL_SOFTBODIES 1
 #define INITIAL_CLOTH 0
 
 
@@ -116,7 +116,7 @@ int main()
 	}
 	for (int i = 1; i <= INITIAL_SOFTBODIES; i++)
 	{
-		createSoftbody(&objects, vec2(i * 250, 50), white, 40, 0.5f, 200, 200, 10, 1);
+		createSoftbody(&objects, vec2(i * 250, 50), white, 10, 0.5f, 200, 200, 10, 1);
 		full = !full;
 		max_physicsSteps = 0;
 	}
